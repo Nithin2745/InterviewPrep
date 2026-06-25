@@ -1,0 +1,27 @@
+{
+  "quant":[
+    {"name":"Number System & HCF/LCM","imp":"high"},{"name":"Percentage","imp":"high"},{"name":"Profit & Loss","imp":"high"},
+    {"name":"Ratio & Proportion","imp":"high"},{"name":"Time, Speed & Distance","imp":"high"},{"name":"Time & Work","imp":"high"},
+    {"name":"Simple & Compound Interest","imp":"med"},{"name":"Averages","imp":"med"},{"name":"Mixtures & Alligation","imp":"med"},
+    {"name":"Permutation & Combination","imp":"med"},{"name":"Probability","imp":"med"},{"name":"Ages Problems","imp":"low"},
+    {"name":"Boats & Streams","imp":"low"},{"name":"Pipes & Cisterns","imp":"low"}
+  ],
+  "logical":[
+    {"name":"Number Series & Patterns","imp":"high"},{"name":"Blood Relations","imp":"high"},{"name":"Directions & Distance","imp":"high"},
+    {"name":"Seating Arrangement","imp":"high"},{"name":"Coding-Decoding","imp":"high"},{"name":"Analogies","imp":"med"},
+    {"name":"Syllogisms","imp":"med"},{"name":"Clocks & Calendars","imp":"med"},{"name":"Venn Diagrams","imp":"med"},
+    {"name":"Data Interpretation","imp":"high"},{"name":"Input/Output Machine","imp":"low"},{"name":"Cube & Dice","imp":"low"}
+  ],
+  "verbal":[
+    {"name":"Reading Comprehension","imp":"high"},{"name":"Error Spotting / Grammar","imp":"high"},
+    {"name":"Fill in the Blanks (Vocabulary)","imp":"high"},{"name":"Para Jumbles","imp":"med"},
+    {"name":"Synonyms & Antonyms","imp":"med"},{"name":"Idioms & Phrases","imp":"low"},
+    {"name":"Sentence Correction","imp":"med"},{"name":"One Word Substitution","imp":"low"}
+  ],
+  "cs":[
+    {"name":"OOPs Concepts (Inheritance, Polymorphism)","imp":"high"},{"name":"DBMS (Joins, Normalization, SQL)","imp":"high"},
+    {"name":"OS (Processes, Threads, Deadlock)","imp":"high"},{"name":"Computer Networks (TCP/IP, HTTP)","imp":"med"},
+    {"name":"Data Structures Fundamentals","imp":"high"},{"name":"Complexity Analysis (Big-O)","imp":"high"},
+    {"name":"Sorting Algorithms","imp":"high"},{"name":"Recursion & Stack Trace","imp":"med"}
+  ]
+}

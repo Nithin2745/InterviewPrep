@@ -1,0 +1,707 @@
+{
+  "Hash Map": {
+    "title": "Hash Map (Dictionary)",
+    "concept": "A hash map stores key-value pairs with O(1) average lookup. Use it whenever you need to count frequencies, check membership, cache results, or remember positions of elements you've already seen.",
+    "whenToUse": ["Two-sum style: 'find two elements that add up to X'", "Counting frequencies of characters or numbers", "Caching/memoization in DP", "Grouping items by a computed key (e.g. anagrams)"],
+    "steps": [
+      "Identify what should be the KEY (usually a value you want to look up later) and what should be the VALUE (count, index, list of items).",
+      "Loop through the data once. For each element, check if its complement/target already exists in the map.",
+      "If yes — you found your answer. If no — store current element in the map and continue.",
+      "Return the result; if no match found, return empty/default."
+    ],
+    "complexity": "Time: O(n) · Space: O(n)",
+    "example": "Two Sum: For each nums[i], check if (target - nums[i]) is already in map. If yes, return both indices. Else store nums[i] -> i."
+  },
+  "Hash Set": {
+    "title": "Hash Set",
+    "concept": "A set stores only unique values with O(1) lookup. Use it when you only need to know 'have I seen this before?' — no associated value needed.",
+    "whenToUse": ["Duplicate detection (Contains Duplicate)", "Longest consecutive sequence", "Checking if all elements satisfy some property", "Visited-set in BFS/DFS"],
+    "steps": [
+      "Create an empty Set.",
+      "Iterate over the data. For each element, check if it's already in the set.",
+      "If yes — handle the duplicate (return true, skip, etc.).",
+      "If no — add it to the set and continue."
+    ],
+    "complexity": "Time: O(n) · Space: O(n)",
+    "example": "Contains Duplicate: Add each number to a Set; if add() returns false, you found a duplicate."
+  },
+  "Frequency Map": {
+    "title": "Frequency Map",
+    "concept": "A specialized hash map where the value is a count of how many times the key has appeared. Used for anagram checks, ransom note problems, character replacements.",
+    "whenToUse": ["Comparing character counts of two strings (anagram)", "Checking if one string can be built from another", "Top-K frequent elements"],
+    "steps": [
+      "Build a frequency map of the source string/array.",
+      "Iterate the target — for each element, decrement its count in the map.",
+      "If at any point count goes negative or key is missing, target cannot be formed.",
+      "Otherwise, success."
+    ],
+    "complexity": "Time: O(n) · Space: O(k) where k = unique elements",
+    "example": "Ransom Note: count chars in magazine, then for each char in ransom, decrement; if missing or negative, fail."
+  },
+  "Two Pointer": {
+    "title": "Two Pointer",
+    "concept": "Use two indices that move through the data — usually starting from opposite ends (left/right) or both from the start with different speeds. The technique turns O(n²) nested loops into O(n) by exploiting structure (sorted input, palindromes, etc.).",
+    "whenToUse": ["Sorted array problems (search, pair sum, container area)", "Palindrome validation", "Removing duplicates in-place", "Partition problems (Dutch flag)"],
+    "steps": [
+      "Sort the input if not already sorted (most two-pointer problems need this).",
+      "Place one pointer at the start (left) and one at the end (right), or both at start with different roles.",
+      "Compare elements at both pointers. Move the pointer that helps you approach the goal.",
+      "Stop when pointers meet or cross."
+    ],
+    "complexity": "Time: O(n) after sort · Space: O(1)",
+    "example": "Container With Most Water: left=0, right=n-1. Compute area. Move the pointer at the shorter line inward (because moving the taller one can never increase area)."
+  },
+  "Sliding Window": {
+    "title": "Sliding Window",
+    "concept": "Maintain a 'window' of elements that satisfies some condition, and slide it across the data. Instead of recomputing from scratch each step, you add the new element on the right and remove the old element on the left — O(1) per step.",
+    "whenToUse": ["Longest/shortest substring with a property (no repeats, ≤k replacements)", "Maximum sum subarray of size k", "Substring containing all characters of another string"],
+    "steps": [
+      "Initialize left=0, right=0, and a result variable.",
+      "Expand the window by moving right and adding nums[right] to your window state.",
+      "While the window is invalid, shrink from the left (remove nums[left], left++) until valid again.",
+      "Update the answer with the current window size when valid.",
+      "Continue until right reaches the end."
+    ],
+    "complexity": "Time: O(n) — each element added/removed at most once · Space: O(k)",
+    "example": "Longest Substring Without Repeating Characters: expand right, when a duplicate appears, shrink left until the duplicate is removed. Track max length."
+  },
+  "Kadane's": {
+    "title": "Kadane's Algorithm",
+    "concept": "Find the maximum sum of a contiguous subarray in O(n). At each index, decide: extend the previous subarray, or start fresh from this index? Take the max.",
+    "whenToUse": ["Maximum subarray sum", "Maximum circular subarray sum (variant)", "Max product subarray (modified version)"],
+    "steps": [
+      "Track two variables: currentMax (best ending here) and globalMax (best overall).",
+      "For each element: currentMax = max(element, currentMax + element).",
+      "globalMax = max(globalMax, currentMax).",
+      "Return globalMax at the end."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Maximum Subarray: For [-2,1,-3,4,-1,2,1,-5,4] → answer is 6 (subarray [4,-1,2,1])."
+  },
+  "Prefix Sum": {
+    "title": "Prefix Sum",
+    "concept": "Pre-compute cumulative sums so any range sum query becomes O(1). prefix[i] = sum of first i elements; sum of [l..r] = prefix[r+1] - prefix[l].",
+    "whenToUse": ["Range sum queries", "Product of array except self (prefix + suffix products)", "Subarray sum equals K (combined with hash map)"],
+    "steps": [
+      "Build a prefix array where prefix[i] = sum of elements from index 0 to i-1.",
+      "To get sum of subarray [l..r]: prefix[r+1] - prefix[l].",
+      "For 'subarray sum equals K': at each step, check if (currentPrefix - K) has been seen before — that means a subarray ending here sums to K."
+    ],
+    "complexity": "Time: O(n) build, O(1) query · Space: O(n)",
+    "example": "Product of Array Except Self: answer[i] = prefixProduct[i] * suffixProduct[i] (no division)."
+  },
+  "Dutch Flag": {
+    "title": "Dutch National Flag",
+    "concept": "Three-way partitioning in one pass — sort an array of 3 distinct values (e.g. 0, 1, 2) in-place using three pointers: low, mid, high.",
+    "whenToUse": ["Sort Colors (0/1/2)", "3-way partitioning around a pivot", "Any problem with exactly 3 categories that need in-place grouping"],
+    "steps": [
+      "Initialize low=0, mid=0, high=n-1.",
+      "While mid ≤ high: if nums[mid] === 0, swap with low and move both low and mid forward.",
+      "If nums[mid] === 1, just move mid forward.",
+      "If nums[mid] === 2, swap with high and move high backward (don't move mid — recheck the swapped element)."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Sort Colors: [2,0,2,1,1,0] → [0,0,1,1,2,2] in one pass."
+  },
+  "Sorting": {
+    "title": "Sorting as a Pre-step",
+    "concept": "Many problems become trivial after sorting: merging intervals, two-pointer pair sums, scheduling, greedy. Always ask 'does sorting make this easier?' first.",
+    "whenToUse": ["Merge Intervals", "Meeting Rooms", "Two-pointer pair problems", "Greedy scheduling"],
+    "steps": [
+      "Sort the input by the relevant key (start time, end time, value, etc.).",
+      "Iterate and apply the problem-specific logic — usually O(n) after sort.",
+      "Return result."
+    ],
+    "complexity": "Time: O(n log n) for sort + O(n) for processing · Space: O(1) or O(n)",
+    "example": "Merge Intervals: sort by start. For each interval, if it overlaps the last in result, merge; otherwise append."
+  },
+  "In-place": {
+    "title": "In-place Manipulation",
+    "concept": "Solve the problem without using extra array space — usually by reversing segments, swapping cyclically, or using the array itself as a hash map (marking indices).",
+    "whenToUse": ["Rotate Array (3 reverses)", "Find All Duplicates (mark visited by negating)", "First Missing Positive (cyclic sort)"],
+    "steps": [
+      "Identify what 'position' each element belongs at.",
+      "Use swaps or reversals to move elements directly without auxiliary arrays.",
+      "Be careful with index math — off-by-one errors are common."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Rotate Array by k: reverse whole array, then reverse first k, then reverse last n-k. O(n) time, O(1) space."
+  },
+  "Expand Around Center": {
+    "title": "Expand Around Center",
+    "concept": "For palindrome problems, every palindrome has a center. Try each possible center (including between two characters for even-length palindromes) and expand outward while characters match.",
+    "whenToUse": ["Longest Palindromic Substring", "Palindromic Substrings (count)", "Any problem that involves finding palindromes"],
+    "steps": [
+      "For each index i, treat it as a center of an odd-length palindrome.",
+      "Also treat the gap between i and i+1 as center of an even-length palindrome.",
+      "Expand outward while chars match. Track the longest found.",
+      "There are 2n-1 centers total."
+    ],
+    "complexity": "Time: O(n²) · Space: O(1)",
+    "example": "Longest Palindromic Substring: try each center, expand, return longest. Beats DP because of constant space."
+  },
+  "Parsing": {
+    "title": "Parsing / State Machine",
+    "concept": "Process input character by character, tracking state. Useful for string-to-integer, regex matching, calculator problems.",
+    "whenToUse": ["String to Integer (atoi)", "Basic Calculator", "Validate IP address"],
+    "steps": [
+      "Define valid states and transitions.",
+      "Iterate char by char, updating state and accumulating result.",
+      "Handle edge cases: whitespace, signs, overflow, invalid chars.",
+      "Return accumulated value."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Atoi: skip whitespace, read optional sign, read digits while within INT range, clamp on overflow."
+  },
+  "Iterative/Recursive": {
+    "title": "Iterative vs Recursive Pointer Manipulation",
+    "concept": "For linked list reversals and tree traversals, you can usually do it either iteratively (with a loop and a few pointers) or recursively (the call stack implicitly stores state).",
+    "whenToUse": ["Reverse Linked List", "Tree traversals", "Anything where the recursion depth is manageable"],
+    "steps": [
+      "Iterative: maintain prev, curr, next pointers. Reverse the link, advance all three.",
+      "Recursive: recurse to the end, then on the way back, point next.next back to current.",
+      "Base case: curr === null.",
+      "Recursive often reads cleaner; iterative avoids stack overflow on long lists."
+    ],
+    "complexity": "Time: O(n) · Space: O(1) iterative, O(n) recursive (stack)",
+    "example": "Reverse Linked List: prev=null, curr=head. While curr: save next, point curr.next to prev, advance prev and curr."
+  },
+  "Floyd's Algorithm": {
+    "title": "Floyd's Cycle Detection (Tortoise & Hare)",
+    "concept": "Use two pointers — slow (1 step) and fast (2 steps). If there's a cycle, they must meet. After meeting, reset one to start and move both at 1 step; they meet again at the cycle entrance.",
+    "whenToUse": ["Linked List Cycle detection", "Find the Duplicate Number (treat array as implicit linked list)", "Any problem with a hidden cycle"],
+    "steps": [
+      "Phase 1: slow moves 1 step, fast moves 2 steps until they meet (or fast hits null = no cycle).",
+      "Phase 2: reset slow to start. Move both slow and fast at 1 step. They meet at cycle entrance.",
+      "Proof: distance from head to cycle start = distance from meeting point to cycle start."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Find the Duplicate Number: treat nums[i] as a pointer from i to nums[i]. Duplicate creates a cycle."
+  },
+  "Fast/Slow Pointer": {
+    "title": "Fast & Slow Pointers",
+    "concept": "Same family as Floyd's, but for finding the middle of a list: fast jumps 2, slow jumps 1. When fast hits the end, slow is at the middle.",
+    "whenToUse": ["Middle of Linked List", "Detect cycle (combined with meeting logic)", "Split list for merge sort"],
+    "steps": [
+      "Initialize slow = head, fast = head.",
+      "While fast and fast.next exist: slow = slow.next, fast = fast.next.next.",
+      "When loop ends, slow is at the middle (for odd length) or the second middle (for even)."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Middle of Linked List: slow ends up exactly at n/2 after one pass."
+  },
+  "Fast/Slow + Reverse": {
+    "title": "Fast/Slow + Reverse Second Half",
+    "concept": "Find middle with fast/slow, reverse the second half in place, then process both halves together (e.g. for palindrome check or reordering).",
+    "whenToUse": ["Palindrome Linked List", "Reorder List"],
+    "steps": [
+      "Use fast/slow to find the middle.",
+      "Reverse the second half of the list.",
+      "Merge or compare the two halves as needed.",
+      "Optionally reverse back to restore original."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "Reorder List: L0→L1→…→Ln-1→Ln becomes L0→Ln→L1→Ln-1→…"
+  },
+  "Carry": {
+    "title": "Carry-based Arithmetic",
+    "concept": "Process digits from least significant to most, tracking a carry. Used when simulating addition on linked lists or strings.",
+    "whenToUse": ["Add Two Numbers (linked lists)", "Multiply Strings", "Plus One"],
+    "steps": [
+      "Initialize carry = 0 and result list.",
+      "While there are digits left in either input OR carry is non-zero:",
+      "  Sum = digit1 + digit2 + carry. Push sum % 10 to result. carry = sum / 10 (integer division).",
+      "Return result (handle reversed order if needed)."
+    ],
+    "complexity": "Time: O(max(n,m)) · Space: O(max(n,m))",
+    "example": "Add Two Numbers: 2→4→3 + 5→6→4 = 7→0→8 (342 + 465 = 807)."
+  },
+  "HashMap + DLL": {
+    "title": "HashMap + Doubly Linked List (LRU)",
+    "concept": "Combine a hash map (O(1) lookup) with a doubly linked list (O(1) insert/delete) to implement an LRU cache: map gives you the node, DLL lets you move it to front in O(1).",
+    "whenToUse": ["LRU Cache", "LFU Cache (more complex)", "Any 'most recently used' data structure"],
+    "steps": [
+      "Maintain a hash map: key → list node.",
+      "Maintain a doubly linked list with dummy head and tail.",
+      "On get: look up node, move it to head (most recent), return value.",
+      "On put: if exists, update value and move to head. Else create node, add to head, evict tail if over capacity."
+    ],
+    "complexity": "Time: O(1) for both get and put · Space: O(capacity)",
+    "example": "LRU Cache: combine HashMap<Integer, Node> with DLL; recent items at head, oldest at tail."
+  },
+  "Heap / Divide&Conquer": {
+    "title": "Heap or Divide & Conquer",
+    "concept": "For merging k sorted lists: use a min-heap of size k (always pop the smallest head), or recursively merge pairs of lists (divide & conquer — log k passes of O(n)).",
+    "whenToUse": ["Merge K Sorted Lists", "Find Kth smallest across sorted arrays", "K-way merge problems"],
+    "steps": [
+      "Heap approach: push the head of every list into a min-heap. Pop smallest, add to result, push its next. Repeat until heap empty.",
+      "D&C approach: merge lists in pairs recursively — like merge sort, but on lists instead of elements."
+    ],
+    "complexity": "Time: O(N log k) where N = total elements, k = lists · Space: O(k) for heap, O(log k) for D&C",
+    "example": "Merge K Sorted Lists: heap of (val, node). Pop min, append, push node.next."
+  },
+  "Stack": {
+    "title": "Stack (LIFO)",
+    "concept": "Last-In-First-Out. Use a stack whenever a problem has 'innermost first' structure — matching brackets, evaluating postfix, reversing.",
+    "whenToUse": ["Valid Parentheses", "Evaluate Reverse Polish Notation", "Min Stack", "Decode String"],
+    "steps": [
+      "Push items onto the stack as you encounter them.",
+      "When you hit a 'closing' trigger (right bracket, operator, etc.), pop and process.",
+      "Stack should be empty at the end for 'balanced' problems."
+    ],
+    "complexity": "Time: O(n) · Space: O(n)",
+    "example": "Valid Parentheses: push openers, on closer pop and check match. Empty stack at end = valid."
+  },
+  "Two Stacks": {
+    "title": "Two Stacks",
+    "concept": "Simulate a queue using two stacks: one for input, one for output. When output is empty and you need to dequeue, pour all of input into output (this reverses order).",
+    "whenToUse": ["Implement Queue using Stacks", "Implement Stack using Queues (the inverse)"],
+    "steps": [
+      "push(x): just push to inStack.",
+      "pop()/peek(): if outStack is empty, pop everything from inStack and push to outStack. Then pop from outStack.",
+      "Amortized O(1) — each element moves between stacks at most once."
+    ],
+    "complexity": "Time: O(1) amortized · Space: O(n)",
+    "example": "Queue via 2 Stacks: inStack=[1,2,3], outStack=[]. On pop, pour → outStack=[3,2,1], pop returns 1."
+  },
+  "Monotonic Stack": {
+    "title": "Monotonic Stack",
+    "concept": "Maintain a stack that is always sorted (increasing or decreasing). When a new element would break the order, pop and process the popped elements — they've found their 'next greater/smaller' element.",
+    "whenToUse": ["Next Greater Element", "Daily Temperatures", "Largest Rectangle in Histogram", "Car Fleet"],
+    "steps": [
+      "Iterate through elements. For each element x:",
+      "  While stack is non-empty AND x violates the monotonic property vs stack.top: pop and record answer for the popped index.",
+      "  Push current index onto stack.",
+      "After the loop, any remaining stack elements have no 'next greater' — handle accordingly."
+    ],
+    "complexity": "Time: O(n) — each element pushed/popped at most once · Space: O(n)",
+    "example": "Daily Temperatures: for each day, pop until you find a warmer day on top. Pop result = current index - popped index."
+  },
+  "Backtracking": {
+    "title": "Backtracking",
+    "concept": "Systematically explore all possibilities by making a choice, recursing, then undoing the choice (backtracking). Prune branches that can't lead to a valid solution.",
+    "whenToUse": ["Subsets / Permutations / Combinations", "N-Queens / Sudoku", "Word Search", "Generate Parentheses"],
+    "steps": [
+      "Define a recursive function that takes the current partial state.",
+      "If state is a complete valid solution — add a copy to results.",
+      "Otherwise, for each possible next choice: make the choice, recurse, then UNDO the choice.",
+      "Prune branches early if the partial state can never lead to a solution."
+    ],
+    "complexity": "Time: O(2^n) or O(n!) typically · Space: O(n) recursion depth",
+    "example": "Subsets: at each index, choose to include nums[i] or not. Recurse both ways, undo between branches."
+  },
+  "1D DP": {
+    "title": "1D Dynamic Programming",
+    "concept": "When the answer for n depends only on the answer for n-1 (and maybe n-2), use a 1D DP array. Each entry dp[i] = optimal answer for subproblem of size i.",
+    "whenToUse": ["Climbing Stairs", "House Robber", "Coin Change", "Decode Ways"],
+    "steps": [
+      "Define dp[i] = answer for first i elements / up to step i.",
+      "Find the recurrence: how does dp[i] depend on earlier values?",
+      "Initialize base cases (dp[0], dp[1]).",
+      "Fill the table iteratively. Optionally optimize to O(1) space using only the last 2 values."
+    ],
+    "complexity": "Time: O(n) · Space: O(n), often O(1) after optimization",
+    "example": "Climbing Stairs: dp[i] = dp[i-1] + dp[i-2] (Fibonacci). Space-optimize to 2 variables."
+  },
+  "2D DP": {
+    "title": "2D Dynamic Programming",
+    "concept": "When the state depends on TWO parameters (e.g. positions in two strings, or a 2D grid), use a 2D table dp[i][j].",
+    "whenToUse": ["Longest Common Subsequence", "Edit Distance", "Unique Paths", "0/1 Knapsack"],
+    "steps": [
+      "Define dp[i][j] = answer for first i elements of A and first j of B (or grid up to (i,j)).",
+      "Find the recurrence: typically dp[i][j] = f(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]).",
+      "Initialize first row and column (base cases).",
+      "Fill the table in row-major order. Return dp[m][n]."
+    ],
+    "complexity": "Time: O(m·n) · Space: O(m·n), can often reduce to O(min(m,n))",
+    "example": "Edit Distance: dp[i][j] = min of insert/delete/replace. Base: dp[0][j]=j, dp[i][0]=i."
+  },
+  "Unbounded Knapsack": {
+    "title": "Unbounded Knapsack",
+    "concept": "A DP variant where each item can be used unlimited times. dp[i] = best answer using items 0..k with capacity i.",
+    "whenToUse": ["Coin Change (fewest coins to make amount)", "Rod Cutting", "Coin Change II (number of ways)"],
+    "steps": [
+      "Define dp[i] = best answer for capacity/amount i.",
+      "Initialize dp[0] = base (0 for min, 1 for count).",
+      "For each amount i from 1..target: for each coin c, dp[i] = best(dp[i], dp[i-c] + 1).",
+      "Return dp[target]."
+    ],
+    "complexity": "Time: O(n · amount) · Space: O(amount)",
+    "example": "Coin Change: dp[0]=0; dp[i] = min(dp[i], dp[i-coin]+1) for each coin."
+  },
+  "0/1 Knapsack": {
+    "title": "0/1 Knapsack",
+    "concept": "Each item can be used AT MOST once. dp[i][w] = best value using first i items with weight capacity w. Optimize space to 1D by iterating w in reverse.",
+    "whenToUse": ["Partition Equal Subset Sum", "Target Sum", "Classic knapsack problems"],
+    "steps": [
+      "Define dp[w] = best value with capacity w (1D optimization).",
+      "Initialize dp[0] = true/0.",
+      "For each item: iterate w from max down to item weight (REVERSE — to avoid reusing the item).",
+      "dp[w] = best(dp[w], dp[w - weight] + value)."
+    ],
+    "complexity": "Time: O(n · W) · Space: O(W)",
+    "example": "Partition Equal Subset Sum: can we pick items summing to total/2? 0/1 knapsack with target = total/2."
+  },
+  "LIS": {
+    "title": "Longest Increasing Subsequence (LIS)",
+    "concept": "Find the longest strictly increasing subsequence. O(n²) DP or O(n log n) with patience sorting (binary search on tails array).",
+    "whenToUse": ["Longest Increasing Subsequence", "Russian Doll Envelopes", "Number of LIS"],
+    "steps": [
+      "DP approach: dp[i] = length of LIS ending at i. For each i, look at all j<i; if nums[j]<nums[i], dp[i] = max(dp[i], dp[j]+1).",
+      "Patience sort: maintain a tails array where tails[k] = smallest tail of all increasing subsequences of length k+1. Use binary search to place each element.",
+      "Final answer = length of tails array."
+    ],
+    "complexity": "DP: O(n²) time, O(n) space · Patience: O(n log n) time, O(n) space",
+    "example": "LIS of [10,9,2,5,3,7,101,18] = 4 ([2,3,7,101] or [2,5,7,101])."
+  },
+  "Greedy / DP": {
+    "title": "Greedy or DP",
+    "concept": "Some problems admit both a greedy and a DP solution. Greedy is faster but only works if the local optimum always leads to global optimum — verify this before using.",
+    "whenToUse": ["Jump Game (greedy: track max reach)", "Jump Game II (greedy: BFS-like levels)", "Gas Station"],
+    "steps": [
+      "Try greedy first: can you make a locally optimal choice that's globally safe?",
+      "If not, fall back to DP where dp[i] = best answer ending at / starting from i.",
+      "For Jump Game: just track the maximum index reachable. If at any point i > maxReach, return false."
+    ],
+    "complexity": "Greedy: O(n) time, O(1) space · DP: O(n²) or O(n) depending on transitions",
+    "example": "Jump Game: greedily track maxReach; if current index exceeds maxReach, can't proceed."
+  },
+  "Interval DP": {
+    "title": "Interval DP",
+    "concept": "DP over intervals of an array — dp[i][j] = best answer for the subarray from i to j. Transitions split the interval at some k.",
+    "whenToUse": ["Burst Balloons", "Matrix Chain Multiplication", "Predict the Winner", "Stone Game"],
+    "steps": [
+      "Define dp[i][j] = best answer for subarray i..j.",
+      "Base case: single elements (i === j).",
+      "For length L from 2 to n: for each starting i, ending j = i+L-1.",
+      "For each split point k between i and j: dp[i][j] = best(dp[i][j], combine(dp[i][k], dp[k+1][j], cost(i,j,k))).",
+      "Return dp[0][n-1]."
+    ],
+    "complexity": "Time: O(n³) · Space: O(n²)",
+    "example": "Burst Balloons: dp[i][j] = max coins from bursting balloons i+1..j-1, with k as last to burst."
+  },
+  "DFS": {
+    "title": "Depth-First Search (DFS)",
+    "concept": "Explore as deep as possible along each branch before backtracking. Use recursion (implicit stack) or an explicit stack. Best for connectivity, path existence, tree traversals.",
+    "whenToUse": ["Tree traversals (inorder/preorder/postorder)", "Number of Islands", "Path Sum problems", "Any 'is there a path?' question"],
+    "steps": [
+      "Define dfs(node, target):",
+      "  Base case: if node is null / out of bounds / already visited — return.",
+      "  Mark node as visited (for graphs) or process the node (for trees).",
+      "  Recurse on every unvisited neighbor / child.",
+      "  Backtrack if needed (for path-finding)."
+    ],
+    "complexity": "Time: O(V+E) · Space: O(V) recursion stack",
+    "example": "Number of Islands: DFS from each unvisited '1' cell, marking all reachable '1's as visited."
+  },
+  "BFS": {
+    "title": "Breadth-First Search (BFS)",
+    "concept": "Explore level by level using a queue. Best for shortest path in unweighted graphs, level-order tree traversal, and 'minimum steps' problems.",
+    "whenToUse": ["Binary Tree Level Order Traversal", "Shortest path in unweighted graph", "Word Ladder", "Rotting Oranges"],
+    "steps": [
+      "Initialize a queue with the starting node(s). Mark them visited.",
+      "While queue is non-empty: dequeue a node, process it.",
+      "Enqueue all unvisited neighbors, mark them visited.",
+      "Track level by processing the entire current queue size at each iteration."
+    ],
+    "complexity": "Time: O(V+E) · Space: O(V) for the queue",
+    "example": "Rotting Oranges: multi-source BFS from all initially rotten oranges; minute-by-minute propagation."
+  },
+  "DFS/BFS": {
+    "title": "DFS or BFS (Both Work)",
+    "concept": "For many graph problems (connectivity, flood fill, cloning), either DFS or BFS works. DFS is shorter to code recursively; BFS gives shortest paths in unweighted graphs.",
+    "whenToUse": ["Number of Islands", "Clone Graph", "Max Area of Island", "Flood Fill"],
+    "steps": [
+      "Choose DFS for simpler recursive code or deep narrow graphs.",
+      "Choose BFS when you need shortest path or level-by-level processing.",
+      "Mark visited when enqueuing (BFS) or when entering (DFS) to avoid duplicate processing."
+    ],
+    "complexity": "Time: O(V+E) · Space: O(V)",
+    "example": "Number of Islands: either approach works. DFS is shorter; BFS avoids stack overflow on large inputs."
+  },
+  "Multi-source BFS": {
+    "title": "Multi-source BFS",
+    "concept": "BFS starting from MULTIPLE sources simultaneously. Initialize the queue with all sources (distance 0), then standard BFS gives shortest distance from the nearest source to every node.",
+    "whenToUse": ["Rotting Oranges", "Walls and Gates", "01 Matrix (distance to nearest 0)"],
+    "steps": [
+      "Find all source nodes, push them all into the queue with distance 0.",
+      "Mark them visited.",
+      "Run standard BFS — when you pop a node and enqueue its neighbors, their distance = popped distance + 1.",
+      "Return max distance seen (or whatever the problem asks)."
+    ],
+    "complexity": "Time: O(V+E) · Space: O(V)",
+    "example": "Rotting Oranges: all rotten oranges start in queue. After BFS, any fresh orange left = -1."
+  },
+  "Topological Sort": {
+    "title": "Topological Sort",
+    "concept": "Order vertices of a DAG so that for every edge u→v, u comes before v. Use Kahn's algorithm (BFS with in-degree) or DFS-based postorder reversal.",
+    "whenToUse": ["Course Schedule (I and II)", "Build order", "Task scheduling with prerequisites", "Alian Dictionary"],
+    "steps": [
+      "Build adjacency list and in-degree array.",
+      "Kahn's: enqueue all nodes with in-degree 0.",
+      "While queue non-empty: dequeue node, add to result. For each neighbor: decrement in-degree; if it hits 0, enqueue.",
+      "If result length < total nodes → cycle exists → impossible."
+    ],
+    "complexity": "Time: O(V+E) · Space: O(V+E)",
+    "example": "Course Schedule II: if topological sort produces all courses, return order; else return [] (cycle)."
+  },
+  "Union Find": {
+    "title": "Union-Find (Disjoint Set Union)",
+    "concept": "Track disjoint sets with union-by-rank and path compression. Supports 'are these two in the same set?' and 'merge these two sets' in near-O(1) (amortized inverse-Ackermann).",
+    "whenToUse": ["Number of Connected Components", "Redundant Connection", "Accounts Merge", "MST (Kruskal)", "Evaluate Division"],
+    "steps": [
+      "Initialize parent[i] = i for all nodes.",
+      "find(x): recursively find root; flatten path along the way (path compression).",
+      "union(x, y): find roots of x and y. Attach smaller-rank root under larger-rank root (union by rank).",
+      "Count components = number of distinct roots."
+    ],
+    "complexity": "Time: O(α(n)) per operation — practically O(1) · Space: O(n)",
+    "example": "Redundant Connection: union edges one by one; the first edge whose endpoints are already in the same set is the answer."
+  },
+  "Greedy": {
+    "title": "Greedy",
+    "concept": "Make the locally optimal choice at each step, hoping it leads to a global optimum. Works when the problem has the 'greedy choice property' — verify before using.",
+    "whenToUse": ["Best Time to Buy and Sell Stock II (sum all positive deltas)", "Jump Game (track maxReach)", "Gas Station", "Two City Scheduling", "Boats to Save People"],
+    "steps": [
+      "Identify what 'locally optimal' means for this problem.",
+      "Sort by a key that makes the greedy choice obvious (e.g. end time for interval scheduling).",
+      "Iterate and make the greedy choice at each step.",
+      "Return accumulated result."
+    ],
+    "complexity": "Time: O(n log n) for sort + O(n) for processing · Space: O(1)",
+    "example": "Non-overlapping Intervals: sort by end time; greedily keep the interval that ends earliest."
+  },
+  "Sorting + Greedy": {
+    "title": "Sorting + Greedy",
+    "concept": "Sort the input by a smart key, then make a single greedy pass. The sort makes the locally optimal choice globally safe.",
+    "whenToUse": ["Merge Intervals", "Non-overlapping Intervals", "Meeting Rooms", "Partition Labels", "Queue Reconstruction"],
+    "steps": [
+      "Sort by the relevant key (start time, end time, etc.).",
+      "Make a single pass, maintaining the greedy invariant.",
+      "Return the result."
+    ],
+    "complexity": "Time: O(n log n) · Space: O(1) or O(n)",
+    "example": "Merge Intervals: sort by start. If current overlaps last in result, merge; else append."
+  },
+  "Greedy + Heap": {
+    "title": "Greedy + Min-Heap",
+    "concept": "Use a heap to always pick the locally optimal next element. Common for scheduling problems where you must pick the 'most urgent' or 'smallest' item repeatedly.",
+    "whenToUse": ["Meeting Rooms II", "Task Scheduler", "Merge K Sorted Lists", "IPO"],
+    "steps": [
+      "Sort items by start time or first relevant key.",
+      "Push items into a min-heap keyed by the second relevant key (end time, next available time, etc.).",
+      "For each new item: pop expired/finished items from heap, push current, heap size = current resource usage.",
+      "Answer = max heap size observed, or final heap state."
+    ],
+    "complexity": "Time: O(n log n) · Space: O(n)",
+    "example": "Meeting Rooms II: sort by start. Min-heap of end times. Heap size = rooms in use. Max size = answer."
+  },
+  "Max Heap": {
+    "title": "Max-Heap",
+    "concept": "A max-heap gives O(1) access to the largest element and O(log n) insert/extract. Use it when you repeatedly need the largest item.",
+    "whenToUse": ["Last Stone Weight", "K Closest Points (max-heap of size k)", "Task Scheduler", "IPO"],
+    "steps": [
+      "Push all elements into a max-heap (in JS, use a min-heap with negated values).",
+      "Pop the largest, process it, optionally push back a modified version.",
+      "Repeat until done."
+    ],
+    "complexity": "Time: O(n log n) build · Space: O(n)",
+    "example": "Last Stone Weight: pop two largest, smash, push back if non-zero. Repeat until ≤1 stone."
+  },
+  "Min Heap": {
+    "title": "Min-Heap",
+    "concept": "A min-heap gives O(1) access to the smallest element and O(log n) insert/extract. Perfect for 'Kth largest/smallest' — keep a heap of size K.",
+    "whenToUse": ["Kth Largest Element in Array", "Top K Frequent Elements", "Kth Smallest in Sorted Matrix", "Find K Pairs with Smallest Sums"],
+    "steps": [
+      "For 'Kth largest': maintain a min-heap of size K. After processing all elements, heap top = Kth largest.",
+      "For each new element: if heap has < K elements, push. Else if element > heap top, pop and push.",
+      "Final heap top is the answer."
+    ],
+    "complexity": "Time: O(n log k) · Space: O(k)",
+    "example": "Kth Largest: maintain min-heap of size k. Push first k. For rest, only push if > heap[0]."
+  },
+  "Bucket Sort": {
+    "title": "Bucket Sort",
+    "concept": "When values are bounded integers (e.g. frequencies from 1 to n), distribute them into buckets indexed by value — O(n) instead of O(n log n) for comparison-based sorts.",
+    "whenToUse": ["Top K Frequent Elements", "Sort Colors (special case with 3 buckets)", "Contains Duplicate (related idea)"],
+    "steps": [
+      "Build a frequency map of the input.",
+      "Create n+1 buckets where bucket[i] = list of elements with frequency i.",
+      "Iterate buckets from highest to lowest, collecting elements until you have K.",
+      "Return result."
+    ],
+    "complexity": "Time: O(n) · Space: O(n)",
+    "example": "Top K Frequent: bucket[i] holds all numbers appearing exactly i times. Read from top."
+  },
+  "Two Heaps": {
+    "title": "Two Heaps (Min + Max)",
+    "concept": "Maintain a max-heap for the lower half and a min-heap for the upper half of a stream. The two tops give you median access in O(1).",
+    "whenToUse": ["Find Median from Data Stream", "Sliding Window Median"],
+    "steps": [
+      "Maintain two heaps: lo (max-heap, smaller half) and hi (min-heap, larger half).",
+      "Balance sizes so lo.size === hi.size or lo.size === hi.size + 1.",
+      "On insert: push to one heap, then rebalance by moving top to the other.",
+      "Median = lo.top (if odd count) or (lo.top + hi.top)/2 (if even)."
+    ],
+    "complexity": "Time: O(log n) per insert · Space: O(n)",
+    "example": "Median Finder: insert 1,2,3 → lo=[1], hi=[2,3]... rebalance to lo=[2,1], hi=[3]. Median = 2."
+  },
+  "Heap + HashMap": {
+    "title": "Heap + HashMap",
+    "concept": "Combine a heap (priority access) with a hash map (fast lookup/update). Used in designs where you need both 'what's the most/least?' and 'update this specific item'.",
+    "whenToUse": ["Design Twitter", "LRU Cache (related)", "Top K Frequent with updates"],
+    "steps": [
+      "Use the hash map to store user/item → data references.",
+      "Use the heap (or sorted structure) to retrieve items in priority order.",
+      "On query: combine heap pop with hash map lookup for full data.",
+      "On post/follow: update hash map, optionally push to heap."
+    ],
+    "complexity": "Time: O(log n) per operation · Space: O(n)",
+    "example": "Design Twitter: heap of recent tweets from followed users; merge K sorted lists of tweets."
+  },
+  "BST Property": {
+    "title": "BST Property",
+    "concept": "In a Binary Search Tree, left subtree values < node < right subtree values. Use this property to prune searches: at each node, you know which subtree to explore.",
+    "whenToUse": ["Lowest Common Ancestor of BST", "Kth Smallest in BST", "Validate BST", "Search in BST"],
+    "steps": [
+      "At each node, compare target with node.val.",
+      "If target < node.val, recurse left. If > node.val, recurse right.",
+      "For LCA: the first node where p and q diverge (one ≤ node ≤ other) is the LCA.",
+      "For Kth smallest: inorder traversal of BST gives sorted order."
+    ],
+    "complexity": "Time: O(h) where h = height · Space: O(h) recursion",
+    "example": "LCA of BST: walk down; first node between p and q (inclusive) is the LCA."
+  },
+  "Inorder": {
+    "title": "Inorder Traversal",
+    "concept": "Visit left subtree, then node, then right subtree. In a BST, this visits nodes in sorted ascending order — critical for Kth-smallest and validate-BST problems.",
+    "whenToUse": ["Kth Smallest Element in BST", "Validate BST (track prev)", "Recover BST (find swapped pair)", "Inorder Successor"],
+    "steps": [
+      "Recurse left.",
+      "Process current node (push to result, or compare with previous).",
+      "Recurse right.",
+      "For Kth smallest: stop after K nodes visited. For validate: ensure prev < current at each step."
+    ],
+    "complexity": "Time: O(n) · Space: O(h) recursion",
+    "example": "Kth Smallest in BST: do inorder, return the Kth element visited."
+  },
+  "Recursion": {
+    "title": "Recursion (Divide & Conquer on Trees)",
+    "concept": "Trees are naturally recursive structures. Many problems split into: solve left subtree, solve right subtree, combine at root.",
+    "whenToUse": ["Construct BT from Preorder + Inorder", "Maximum Path Sum", "Diameter of Binary Tree"],
+    "steps": [
+      "Base case: empty tree → return default value.",
+      "Recurse on left and right subtrees.",
+      "Combine results at current node according to problem logic.",
+      "For construction problems: identify root from one array, partition the other array by root, recurse."
+    ],
+    "complexity": "Time: O(n) · Space: O(h)",
+    "example": "Construct from Preorder+Inorder: preorder[0] is root. Find it in inorder → split into left/right subtrees. Recurse."
+  },
+  "Backtracking + DP": {
+    "title": "Backtracking + DP",
+    "concept": "Use backtracking to explore partitions, but precompute a DP table (e.g. isPalindrome[i][j]) to make each branching decision O(1) instead of O(n).",
+    "whenToUse": ["Palindrome Partitioning", "Word Break II", "Word Search II (with Trie)"],
+    "steps": [
+      "Precompute auxiliary table (e.g. isPalindrome[i][j] = true if s[i..j] is palindrome).",
+      "Run backtracking: at each step, use the table to prune invalid branches in O(1).",
+      "Collect all valid full partitions."
+    ],
+    "complexity": "Time: O(2^n) worst case (but pruned) + O(n²) precompute · Space: O(n²)",
+    "example": "Palindrome Partitioning: precompute palindrome table, backtrack using it."
+  },
+  "DP": {
+    "title": "Dynamic Programming (general)",
+    "concept": "When a problem has overlapping subproblems and optimal substructure, cache subproblem answers in a table to avoid recomputation. Identify state, recurrence, and base cases.",
+    "whenToUse": ["Word Break", "Longest Palindromic Substring", "Maximum Product Subarray", "Palindromic Substrings"],
+    "steps": [
+      "Define the state: what does dp[i] (or dp[i][j]) represent?",
+      "Find the recurrence: how does the current state depend on previous states?",
+      "Initialize base cases.",
+      "Choose iteration order so dependencies are computed first.",
+      "Return final state."
+    ],
+    "complexity": "Time: O(states × transitions) · Space: O(states)",
+    "example": "Word Break: dp[i] = true if s[0..i-1] can be segmented. dp[i] = OR over j: dp[j] && s[j..i-1] in dict."
+  },
+  "Monotonic Deque": {
+    "title": "Monotonic Deque",
+    "concept": "Maintain a deque of indices whose values are in decreasing order. Used to find the max/min in every sliding window in O(n) total.",
+    "whenToUse": ["Sliding Window Maximum", "Shortest Subarray with Sum ≥ K", "Constrained Subsequence Sum"],
+    "steps": [
+      "Iterate i from 0 to n-1.",
+      "While deque back value ≤ nums[i]: pop back (it can never be the max for any future window).",
+      "Push i to back of deque.",
+      "If deque front is outside the current window (i - k), pop front.",
+      "If i ≥ k-1: deque front = index of max in current window."
+    ],
+    "complexity": "Time: O(n) · Space: O(k)",
+    "example": "Sliding Window Maximum: for [1,3,-1,-3,5,3,6,7], k=3 → [3,3,5,5,6,7]."
+  },
+  "Trie": {
+    "title": "Trie (Prefix Tree)",
+    "concept": "A tree where each path from root spells out a string. Used for prefix matching, autocomplete, and efficiently searching multiple words in a grid.",
+    "whenToUse": ["Word Search II", "Implement Trie", "Design Add and Search Words", "Replace Words"],
+    "steps": [
+      "Build a trie from all dictionary words.",
+      "Walk the trie character by character as you traverse the input.",
+      "At each node, if it's an end-of-word marker, record a match.",
+      "For grid search: backtrack through the trie, pruning when current cell's char doesn't match any child."
+    ],
+    "complexity": "Build: O(total chars) · Search: O(word length) · Space: O(total chars × alphabet)",
+    "example": "Word Search II: build trie from words list, DFS the board following trie paths."
+  },
+  "Weighted Graph": {
+    "title": "Weighted Graph Traversal",
+    "concept": "For graphs with edge weights, plain BFS doesn't give shortest paths. Use Dijkstra (non-negative weights), Bellman-Ford (negative weights OK), or A* (with heuristic). For division problems, treat division as edge weight = ratio.",
+    "whenToUse": ["Evaluate Division (a/b * b/c = a/c)", "Network Delay Time", "Cheapest Flights Within K Stops"],
+    "steps": [
+      "Model the problem as a weighted graph: nodes = variables, edges = ratios or costs.",
+      "For Evaluate Division: build a graph where a→b has weight a/b and b→a has weight b/a.",
+      "For each query, BFS/DFS from source accumulating the product of edge weights to reach target.",
+      "If target unreachable, return -1."
+    ],
+    "complexity": "Time: O(V+E) per query for DFS · Space: O(V+E)",
+    "example": "Evaluate Division: a/b=2, b/c=3 → graph a→b(2), b→a(0.5), b→c(3), c→b(0.33). a/c = 2*3 = 6."
+  },
+  "Two Pointer (in-place)": {
+    "title": "Two Pointer In-Place",
+    "concept": "Use a slow 'write' pointer and a fast 'read' pointer to transform an array in place — overwrite only when needed, O(1) extra space.",
+    "whenToUse": ["String Compression", "Remove Duplicates", "Move Zeroes", "Remove Element"],
+    "steps": [
+      "Initialize write = 0.",
+      "Iterate read from 0 to n-1.",
+      "If nums[read] satisfies the keep condition, write it to nums[write] and increment write.",
+      "For compression: write the char, then count, then advance both pointers.",
+      "Final array length = write pointer."
+    ],
+    "complexity": "Time: O(n) · Space: O(1)",
+    "example": "String Compression: ['a','a','b','b','b','c'] → ['a','2','b','3','c'], length 5."
+  },
+  "Math/Recursion": {
+    "title": "Math + Recursion",
+    "concept": "Break a number into chunks (thousands) and recurse, with a base case for numbers under 20 that maps directly to English words.",
+    "whenToUse": ["Integer to English Words", "Excel Sheet Column Title", "Count and Say"],
+    "steps": [
+      "Define helper arrays: LESS_THAN_20, TENS, THOUSANDS.",
+      "Define helper(num) that converts a number < 1000 to words.",
+      "Main function: process thousands groups from largest to smallest, calling helper for each.",
+      "Concatenate with thousand-group suffixes (Thousand, Million, Billion)."
+    ],
+    "complexity": "Time: O(digits) · Space: O(digits) recursion",
+    "example": "Integer to English Words: 12345 → 'Twelve Thousand Three Hundred Forty Five'."
+  },
+  "Simulation": {
+    "title": "Simulation",
+    "concept": "Carefully simulate the process step by step — snake game, tic-tac-toe, design a stack with increment operation, etc. State management is the key challenge.",
+    "whenToUse": ["Design Snake Game", "Design Tic-Tac-Toe", "Design Circular Queue", "Robot Room Cleaner"],
+    "steps": [
+      "Identify the state variables (position, direction, score, etc.).",
+      "For each input/action, update state per game rules.",
+      "Handle edge cases: out-of-bounds, collisions, wrapping.",
+      "Return appropriate output after each action."
+    ],
+    "complexity": "Time: O(1) per operation typically · Space: O(state size)",
+    "example": "Snake Game: deque for snake body, set for fast collision check, food queue."
+  }
+}

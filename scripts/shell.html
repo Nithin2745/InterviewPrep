@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placement Prep Tracker — Live</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  /* ============ THEMES ============ */
+  :root,
+  [data-theme="midnight"]{
+    --bg:#0f1117;--sidebar:#161b27;--card:#1c2333;--card2:#222a3d;
+    --border:#2a3349;--text:#e8eaf0;--muted:#7a8599;--accent:#4f8ef7;
+    --green:#3ecf8e;--amber:#f59e0b;--red:#ef4444;--purple:#a78bfa;
+    --teal:#2dd4bf;--pink:#f472b6;
+    --grad:linear-gradient(135deg,#4f8ef7 0%,#a78bfa 100%);
+    --glow:0 0 24px rgba(79,142,247,.35);
+    --shadow:0 8px 24px rgba(0,0,0,.35);
+    --code-bg:#0a0d14;
+  }
+  [data-theme="light"]{
+    --bg:#f4f6fb;--sidebar:#ffffff;--card:#ffffff;--card2:#f1f4fa;
+    --border:#e3e8f0;--text:#1a2030;--muted:#6b7689;--accent:#2563eb;
+    --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+    --teal:#14b8a6;--pink:#ec4899;
+    --grad:linear-gradient(135deg,#2563eb 0%,#8b5cf6 100%);
+    --glow:0 4px 18px rgba(37,99,235,.18);
+    --shadow:0 4px 14px rgba(20,30,60,.08);
+    --code-bg:#f1f4fa;
+  }
+  [data-theme="aurora"]{
+    --bg:#0a0e27;--sidebar:#10153a;--card:#181d4a;--card2:#1f2660;
+    --border:#2d3680;--text:#eef1ff;--muted:#8d97d8;--accent:#7c83ff;
+    --green:#5eead4;--amber:#fbbf24;--red:#fb7185;--purple:#c084fc;
+    --teal:#22d3ee;--pink:#f472b6;
+    --grad:linear-gradient(135deg,#7c83ff 0%,#c084fc 50%,#f472b6 100%);
+    --glow:0 0 32px rgba(124,131,255,.45);
+    --shadow:0 8px 28px rgba(0,0,0,.45);
+    --code-bg:#0a0e27;
+  }
+  [data-theme="cyberpunk"]{
+    --bg:#0d0221;--sidebar:#1a0633;--card:#1f0740;--card2:#2a0a55;
+    --border:#3d0f7a;--text:#fcee0a;--muted:#b14aff;--accent:#ff2e88;
+    --green:#00ffa3;--amber:#ff8a00;--red:#ff2e88;--purple:#b14aff;
+    --teal:#00f0ff;--pink:#ff2e88;
+    --grad:linear-gradient(135deg,#ff2e88 0%,#b14aff 50%,#00f0ff 100%);
+    --glow:0 0 28px rgba(255,46,136,.55);
+    --shadow:0 0 20px rgba(177,74,255,.4);
+    --code-bg:#0a0118;
+  }
+  [data-theme="forest"]{
+    --bg:#0d1f17;--sidebar:#13291f;--card:#1a3a2a;--card2:#214833;
+    --border:#2d5b42;--text:#e5f0e8;--muted:#88a896;--accent:#34d399;
+    --green:#34d399;--amber:#fbbf24;--red:#f87171;--purple:#a78bfa;
+    --teal:#22d3ee;--pink:#f472b6;
+    --grad:linear-gradient(135deg,#34d399 0%,#22d3ee 100%);
+    --glow:0 0 22px rgba(52,211,153,.35);
+    --shadow:0 6px 20px rgba(0,0,0,.4);
+    --code-bg:#081410;
+  }
+
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px;transition:background .4s ease,color .4s ease}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 20% 0%,rgba(79,142,247,.08),transparent 50%),radial-gradient(circle at 80% 100%,rgba(167,139,250,.06),transparent 50%);pointer-events:none;z-index:0;transition:opacity .4s}
+
+  /* ============ SIDEBAR ============ */
+  #sidebar{width:240px;min-width:240px;background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;position:fixed;top:0;left:0;height:100vh;z-index:10;transition:background .4s,border-color .4s}
+  .brand{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+  .brand::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--grad);opacity:.6}
+  .brand h1{font-size:16px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.3px}
+  .brand p{font-size:11px;color:var(--muted);margin-top:3px}
+
+  .nav-section{padding:12px 8px 4px}
+  .nav-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:0 8px 6px}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px;transition:all .2s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;position:relative}
+  .nav-item:hover{background:var(--card);color:var(--text);transform:translateX(2px)}
+  .nav-item.active{background:rgba(124,131,255,.14);color:var(--accent);box-shadow:inset 2px 0 0 var(--accent)}
+  .nav-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
+  .nav-item .pct{margin-left:auto;font-size:10px;background:var(--card2);padding:2px 7px;border-radius:10px;font-weight:600;transition:all .3s}
+  .nav-item .pct.done100{background:rgba(62,207,142,.2);color:var(--green)}
+
+  /* Streak block */
+  .streak-block{padding:14px 14px;margin:8px 8px;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.08));border:1px solid rgba(245,158,11,.25);border-radius:10px;text-align:center}
+  .streak-block .flame{font-size:24px;display:inline-block;animation:flicker 1.5s infinite alternate;filter:drop-shadow(0 0 8px rgba(245,158,11,.6))}
+  @keyframes flicker{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.1) rotate(2deg)}}
+  .streak-block .count{font-size:22px;font-weight:800;color:var(--amber);display:block;margin-top:2px}
+  .streak-block .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+
+  /* ============ MAIN ============ */
+  #main{margin-left:240px;flex:1;padding:24px 28px;overflow-y:auto;min-height:100vh;position:relative;z-index:1}
+  .page{display:none;animation:pageIn .4s cubic-bezier(.22,1,.36,1)}
+  .page.active{display:block}
+  @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  .page-title{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .page-title h2{font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .page-title .icon{font-size:24px}
+  .page-sub{color:var(--muted);font-size:12px;margin-bottom:22px}
+
+  /* Stat grid */
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:all .3s;animation:cardIn .5s cubic-bezier(.22,1,.36,1) backwards}
+  .stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--accent)}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.7}
+  .stat-card .label{font-size:10px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+  .stat-card .value{font-size:30px;font-weight:800;line-height:1}
+  .stat-card .sub{font-size:11px;color:var(--muted);margin-top:6px}
+  .stat-card .ico{position:absolute;top:14px;right:16px;font-size:24px;opacity:.18}
+  @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Progress card */
+  .progress-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:22px;position:relative;overflow:hidden}
+  .progress-card .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .progress-card .ph .lbl{font-size:13px;font-weight:700}
+  .progress-card .ph .pct{font-size:18px;font-weight:800;color:var(--accent)}
+  .prog-bar{height:10px;background:var(--card2);border-radius:6px;overflow:hidden;position:relative}
+  .prog-fill{height:100%;border-radius:6px;background:var(--grad);transition:width 1s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden}
+  .prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:shimmer 2s infinite}
+  @keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+  .legend{display:flex;gap:16px;margin-top:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend .d{width:8px;height:8px;border-radius:50%}
+
+  /* Activity heatmap */
+  .heatmap-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:22px}
+  .heatmap-wrap .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .heatmap-wrap .ph .lbl{font-size:13px;font-weight:700}
+  .heatmap-wrap .ph .sub{font-size:11px;color:var(--muted)}
+  .heatmap{display:grid;grid-template-columns:repeat(15,1fr);gap:4px}
+  .cell{aspect-ratio:1;border-radius:3px;background:var(--card2);transition:all .25s;cursor:pointer;position:relative}
+  .cell[data-l="1"]{background:rgba(79,142,247,.25)}
+  .cell[data-l="2"]{background:rgba(79,142,247,.5)}
+  .cell[data-l="3"]{background:rgba(79,142,247,.75)}
+  .cell[data-l="4"]{background:var(--accent);box-shadow:0 0 6px var(--accent)}
+  .cell:hover{transform:scale(1.3);z-index:5}
+  .cell .tip{position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:10px;padding:4px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10}
+  .cell:hover .tip{opacity:1}
+  .heatmap-legend{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);margin-top:12px;justify-content:flex-end}
+  .heatmap-legend .lc{width:10px;height:10px;border-radius:2px}
+
+  /* Today's pick */
+  .pick-card{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--accent);border-radius:14px;padding:18px;margin-bottom:22px;position:relative;overflow:hidden;box-shadow:var(--glow)}
+  .pick-card::before{content:'★';position:absolute;right:-10px;top:-10px;font-size:120px;color:var(--accent);opacity:.07}
+  .pick-card .lbl{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+  .pick-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
+  .pick-card .meta{font-size:11px;color:var(--muted);margin-bottom:12px}
+  .pick-card .btns{display:flex;gap:8px;flex-wrap:wrap}
+  .pick-btn{padding:8px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;text-decoration:none;display:inline-block;transition:all .2s}
+  .pick-btn:hover{transform:translateY(-2px);box-shadow:var(--glow)}
+  .pick-btn.outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+
+  /* Topic grid */
+  .sec-title{font-size:15px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+  .topic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .topic-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;animation:cardIn .5s cubic-bezier(.22,1,.36,1) backwards}
+  .topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--tc,var(--accent));opacity:0;transition:opacity .3s}
+  .topic-card:hover{transform:translateY(-4px);border-color:var(--tc,var(--accent));box-shadow:var(--shadow)}
+  .topic-card:hover::before{opacity:1}
+  .topic-card h3{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .topic-card .h-ico{width:28px;height:28px;border-radius:8px;background:var(--tc,var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;opacity:.9}
+  .topic-card .meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px}
+  .topic-card .pct-big{font-size:18px;font-weight:800;color:var(--tc,var(--accent))}
+
+  /* ============ PROBLEM LIST + FLIPCARDS ============ */
+  .page-header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .page-header h2{font-size:22px;font-weight:800}
+  .page-header .badge{font-size:11px;padding:4px 12px;border-radius:20px;background:var(--card2);color:var(--muted);font-weight:600}
+  .page-sub-row{color:var(--muted);font-size:12px;margin-bottom:18px}
+
+  .search-row{position:relative;margin-bottom:14px}
+  .search-row input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);padding:11px 14px 11px 38px;font-size:13px;font-family:inherit;transition:all .2s}
+  .search-row input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,131,255,.15)}
+  .search-row .si{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+
+  .filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .filter-btn{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:12px;transition:all .2s;font-weight:500}
+  .filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--glow)}
+
+  .problem-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .flip-card{perspective:1600px;min-height:78px;animation:cardIn .4s cubic-bezier(.22,1,.36,1) backwards}
+  .flip-inner{position:relative;width:100%;min-height:78px;transition:transform .65s cubic-bezier(.22,1,.36,1);transform-style:preserve-3d;cursor:pointer}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg)}
+  .flip-card.flipped .flip-inner{min-height:auto}
+  .flip-card.flipped{min-height:260px}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;gap:12px;transition:border-color .2s}
+  .flip-front:hover{border-color:var(--accent)}
+  .flip-back{transform:rotateY(180deg);background:linear-gradient(135deg,var(--card),var(--card2));border-color:var(--accent);flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:6px;padding:12px 14px;text-align:left;height:100%}
+  .flip-back .bt{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px;width:100%}
+  .flip-back .hint{font-size:11px;color:var(--text);line-height:1.5;width:100%;padding:6px 9px;background:rgba(245,158,11,.08);border-left:2px solid var(--amber);border-radius:4px}
+  .flip-back .hint b{color:var(--amber)}
+  .flip-back .code{font-size:10px;font-family:'SF Mono',Consolas,'Courier New',monospace;background:var(--code-bg);color:var(--text);padding:8px 10px;border-radius:6px;width:100%;white-space:pre;overflow-x:auto;line-height:1.5;border:1px solid var(--border)}
+  .flip-back .code .kw{color:var(--purple)}
+  .flip-back .code .cm{color:var(--muted);font-style:italic}
+  .flip-back .b-link{font-size:10px;color:var(--accent);text-decoration:none;margin-top:auto;padding-top:4px;font-weight:600}
+  .flip-back .b-link:hover{text-decoration:underline}
+
+  .p-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .25s;position:relative}
+  .p-check:hover{border-color:var(--green);transform:scale(1.1)}
+  .p-check.checked{background:var(--green);border-color:var(--green);animation:pop .35s}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+  .p-check svg{display:none}
+  .p-check.checked svg{display:block}
+  .p-name{flex:1;font-size:13px;font-weight:500}
+  .p-pattern{font-size:10px;color:var(--accent);background:rgba(124,131,255,.12);padding:3px 9px;border-radius:10px;cursor:pointer;font-weight:600;transition:all .15s;white-space:nowrap}
+  .p-pattern:hover{background:rgba(124,131,255,.25)}
+  .diff{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .diff.easy{color:var(--green);background:rgba(62,207,142,.13)}
+  .diff.medium{color:var(--amber);background:rgba(245,158,11,.13)}
+  .diff.hard{color:var(--red);background:rgba(239,68,68,.13)}
+  .lc-link{color:var(--muted);text-decoration:none;font-size:10px;padding:4px 9px;border:1px solid var(--border);border-radius:6px;transition:all .15s;white-space:nowrap;font-weight:600}
+  .lc-link:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-1px)}
+  .flip-card.done .p-name{text-decoration:line-through;opacity:.55}
+  .flip-card.done .flip-front{opacity:.7}
+
+  .topic-prog-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+
+  /* ============ COMPANY ============ */
+  .company-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .ctab{padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:12px;transition:all .2s;font-weight:600}
+  .ctab:hover{border-color:var(--accent);color:var(--text)}
+  .ctab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--glow)}
+  .company-info{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;position:relative;overflow:hidden}
+  .company-info::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--cc,var(--accent))}
+  .company-info h3{font-size:15px;font-weight:700;margin-bottom:8px}
+  .company-info p{font-size:12px;color:var(--muted);line-height:1.7}
+  .tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .tag{font-size:10px;padding:4px 10px;border-radius:12px;border:1px solid var(--border);color:var(--muted);background:var(--card2);font-weight:500}
+
+  /* ============ APTITUDE ============ */
+  .apt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+  .apt-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;position:relative;overflow:hidden;animation:cardIn .5s backwards}
+  .apt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ac,var(--accent))}
+  .apt-card h3{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .apt-topic{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);transition:all .15s}
+  .apt-topic:hover{padding-left:6px}
+  .apt-topic:last-child{border-bottom:none}
+  .apt-topic .name{flex:1;font-size:12px}
+  .apt-topic .imp{font-size:9px;padding:3px 8px;border-radius:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .imp.high{background:rgba(239,68,68,.15);color:var(--red)}
+  .imp.med{background:rgba(245,158,11,.15);color:var(--amber)}
+  .imp.low{background:rgba(62,207,142,.15);color:var(--green)}
+
+  /* ============ RESOURCES ============ */
+  .res-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .res-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;animation:cardIn .5s backwards}
+  .res-card h4{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--accent);display:flex;align-items:center;gap:6px}
+  .res-card a{display:block;font-size:12px;color:var(--text);text-decoration:none;padding:8px 0;transition:all .15s;border-bottom:1px solid var(--border)}
+  .res-card a:last-child{border-bottom:none}
+  .res-card a:hover{color:var(--accent);padding-left:4px}
+  .res-card a .desc{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+
+  /* ============ SETTINGS PAGE ============ */
+  .settings-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px;animation:cardIn .4s backwards}
+  .settings-section h3{font-size:14px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .settings-section .desc{font-size:11px;color:var(--muted);margin-bottom:16px}
+  .theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+  .theme-card{background:var(--card2);border:2px solid var(--border);border-radius:10px;padding:14px 8px;cursor:pointer;transition:all .25s;text-align:center;position:relative;overflow:hidden}
+  .theme-card:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .theme-card.active{border-color:var(--accent);box-shadow:var(--glow)}
+  .theme-card .preview{width:100%;height:48px;border-radius:6px;margin-bottom:8px;position:relative;overflow:hidden;border:1px solid var(--border)}
+  .theme-card .preview .pb{position:absolute;bottom:0;left:0;right:0;height:14px}
+  .theme-card .preview .pc{position:absolute;top:6px;left:6px;right:30px;height:10px;border-radius:2px}
+  .theme-card .preview .pd{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%}
+  .theme-card .name{font-size:11px;font-weight:700;color:var(--text)}
+  .theme-card .check{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;display:none;align-items:center;justify-content:center}
+  .theme-card.active .check{display:flex}
+
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+  .toggle-row:last-child{border-bottom:none}
+  .toggle-row .info{flex:1}
+  .toggle-row .info .t{font-size:13px;font-weight:600}
+  .toggle-row .info .d{font-size:11px;color:var(--muted);margin-top:2px}
+  .toggle{position:relative;width:44px;height:24px;background:var(--card2);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .25s;flex-shrink:0}
+  .toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:all .25s}
+  .toggle.on{background:var(--accent);border-color:var(--accent)}
+  .toggle.on::after{left:22px;background:#fff}
+
+  .danger-zone{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:18px;margin-top:18px}
+  .danger-zone h3{color:var(--red)}
+  .danger-zone .desc{color:var(--muted);font-size:11px;margin:6px 0 14px}
+  .danger-btn{padding:10px 18px;background:transparent;border:1px solid var(--red);color:var(--red);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;margin-right:8px}
+  .danger-btn:hover{background:var(--red);color:#fff}
+
+  .data-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+  .data-stat .ds{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+  .data-stat .ds .v{font-size:20px;font-weight:800;color:var(--accent)}
+  .data-stat .ds .l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+  /* ============ PATTERN MODAL ============ */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;animation:fadeIn .25s}
+  .modal-bg.show{display:flex}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;animation:modalIn .35s cubic-bezier(.22,1,.36,1);box-shadow:var(--shadow);position:relative}
+  @keyframes modalIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .modal .x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:var(--card2);border:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .modal .x:hover{background:var(--red);color:#fff;transform:rotate(90deg)}
+  .modal h2{font-size:20px;font-weight:800;margin-bottom:4px;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .modal .pat-tag{font-size:10px;color:var(--accent);background:rgba(124,131,255,.15);padding:3px 10px;border-radius:10px;display:inline-block;margin-bottom:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .modal h4{font-size:12px;font-weight:700;color:var(--accent);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.6px}
+  .modal p{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:8px}
+  .modal ul{margin:6px 0 6px 18px}
+  .modal li{font-size:12px;color:var(--text);line-height:1.7;margin-bottom:4px}
+  .modal .complexity{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .modal .cx{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px}
+  .modal .cx b{color:var(--accent)}
+  .modal code{background:var(--card2);padding:2px 6px;border-radius:4px;font-size:11px;font-family:'SF Mono',Consolas,monospace;color:var(--accent)}
+
+  /* ============ SCROLLBAR ============ */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:9999}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--green);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);z-index:1000;opacity:0;transition:all .35s cubic-bezier(.22,1,.36,1);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast .ti{font-size:18px}
+
+  @media(max-width:1100px){.problem-list{grid-template-columns:1fr}.topic-grid{grid-template-columns:repeat(2,1fr)}.theme-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:700px){
+    #sidebar{transform:translateX(-100%);transition:transform .3s}
+    #sidebar.open{transform:translateX(0)}
+    #main{margin-left:0;padding:18px}
+    .topic-grid{grid-template-columns:1fr}
+    .apt-grid,.res-grid{grid-template-columns:1fr}
+    .heatmap{grid-template-columns:repeat(10,1fr)}
+    .menu-btn{display:flex !important}
+    .theme-grid{grid-template-columns:repeat(2,1fr)}
+    .data-stat{grid-template-columns:1fr}
+  }
+  .menu-btn{display:none;position:fixed;top:14px;right:14px;z-index:50;width:40px;height:40px;border-radius:10px;background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer;align-items:center;justify-content:center;font-size:18px}
+</style>
+</head>
+<body data-theme="midnight">
+
+<button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<nav id="sidebar">
+  <div class="brand">
+    <h1>⚡ PlacementPrep</h1>
+    <p>Live LeetCode Tracker</p>
+  </div>
+
+  <div class="streak-block">
+    <span class="flame">🔥</span>
+    <span class="count" id="streakCount">0</span>
+    <span class="lbl">Day Streak</span>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="showPage('dashboard')"><span>📊</span> Dashboard</button>
+    <button class="nav-item" onclick="showPage('patterns')"><span>🧩</span> Pattern Library</button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">DSA Topics</div>
+    <button class="nav-item" onclick="showTopic('arrays')"><span class="dot" style="background:#4f8ef7;color:#4f8ef7"></span>Arrays<span class="pct" id="pct-arrays">0%</span></button>
+    <button class="nav-item" onclick="showTopic('strings')"><span class="dot" style="background:#a78bfa;color:#a78bfa"></span>Strings<span class="pct" id="pct-strings">0%</span></button>
+    <button class="nav-item" onclick="showTopic('hashing')"><span class="dot" style="background:#2dd4bf;color:#2dd4bf"></span>Hashing<span class="pct" id="pct-hashing">0%</span></button>
+    <button class="nav-item" onclick="showTopic('linkedlist')"><span class="dot" style="background:#f472b6;color:#f472b6"></span>Linked Lists<span class="pct" id="pct-linkedlist">0%</span></button>
+    <button class="nav-item" onclick="showTopic('stacks')"><span class="dot" style="background:#f59e0b;color:#f59e0b"></span>Stacks & Queues<span class="pct" id="pct-stacks">0%</span></button>
+    <button class="nav-item" onclick="showTopic('binarysearch')"><span class="dot" style="background:#3ecf8e;color:#3ecf8e"></span>Binary Search<span class="pct" id="pct-binarysearch">0%</span></button>
+    <button class="nav-item" onclick="showTopic('trees')"><span class="dot" style="background:#f97316;color:#f97316"></span>Trees<span class="pct" id="pct-trees">0%</span></button>
+    <button class="nav-item" onclick="showTopic('dp')"><span class="dot" style="background:#ef4444;color:#ef4444"></span>Dynamic Prog.<span class="pct" id="pct-dp">0%</span></button>
+    <button class="nav-item" onclick="showTopic('graphs')"><span class="dot" style="background:#8b5cf6;color:#8b5cf6"></span>Graphs<span class="pct" id="pct-graphs">0%</span></button>
+    <button class="nav-item" onclick="showTopic('backtracking')"><span class="dot" style="background:#ec4899;color:#ec4899"></span>Backtracking<span class="pct" id="pct-backtracking">0%</span></button>
+    <button class="nav-item" onclick="showTopic('greedy')"><span class="dot" style="background:#14b8a6;color:#14b8a6"></span>Greedy<span class="pct" id="pct-greedy">0%</span></button>
+    <button class="nav-item" onclick="showTopic('heaps')"><span class="dot" style="background:#f59e0b;color:#f59e0b"></span>Heaps<span class="pct" id="pct-heaps">0%</span></button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Company Prep</div>
+    <button class="nav-item" onclick="showPage('company')"><span>🏢</span> Company Wise</button>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Other</div>
+    <button class="nav-item" onclick="showPage('aptitude')"><span>🧮</span> Aptitude Prep</button>
+    <button class="nav-item" onclick="showPage('resources')"><span>📚</span> Resources</button>
+    <button class="nav-item" onclick="showPage('settings')"><span>⚙️</span> Settings</button>
+  </div>
+</nav>
+
+<main id="main">
+  <div id="page-dashboard" class="page active"></div>
+  <div id="page-topic" class="page"></div>
+  <div id="page-patterns" class="page"></div>
+  <div id="page-company" class="page"></div>
+  <div id="page-aptitude" class="page"></div>
+  <div id="page-resources" class="page"></div>
+  <div id="page-settings" class="page"></div>
+</main>
+
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"><span class="ti">✅</span><span id="toastMsg">Saved</span></div>
+
+<script>
+// ====================================================================
+// PATTERNS LIBRARY (loaded from data file)
+// ====================================================================
+const PATTERNS = __PATTERNS__;
+</script>
+<script>
+// ====================================================================
+// TOPICS DATA (with hints + pseudocode)
+// ====================================================================
+const TOPICS = __TOPICS__;
+</script>
+<script>
+// ====================================================================
+// COMPANIES DATA (with hints + pseudocode)
+// ====================================================================
+const COMPANIES = __COMPANIES__;
+</script>
+<script>
+// ====================================================================
+// APTITUDE DATA
+// ====================================================================
+const APTITUDE = __APTITUDE__;
+</script>
+<script>
+// ====================================================================
+// STATE + PERSISTENCE
+// ====================================================================
+let completed = new Set(JSON.parse(localStorage.getItem('placement_done')||'[]'));
+let activityLog = JSON.parse(localStorage.getItem('placement_activity')||'{}');
+let lastActiveDate = localStorage.getItem('placement_lastDate')||null;
+let streak = parseInt(localStorage.getItem('placement_streak')||'0',10);
+let theme = localStorage.getItem('placement_theme')||'midnight';
+let settings = JSON.parse(localStorage.getItem('placement_settings')||'{"showHints":true,"showPseudocode":true,"showPattern":true}');
+let currentTopic = 'arrays';
+let currentCompany = 'tcs';
+let currentPage = 'dashboard';
+let filter = 'all';
+let searchQuery = '';
+
+function todayStr(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function save(){
+  localStorage.setItem('placement_done',JSON.stringify([...completed]));
+  localStorage.setItem('placement_activity',JSON.stringify(activityLog));
+  localStorage.setItem('placement_lastDate',lastActiveDate||'');
+  localStorage.setItem('placement_streak',String(streak));
+  localStorage.setItem('placement_settings',JSON.stringify(settings));
+}
+function saveSettings(){localStorage.setItem('placement_settings',JSON.stringify(settings));}
+function updateStreak(){
+  const today=todayStr();
+  if(lastActiveDate===today) return;
+  const y=new Date(); y.setDate(y.getDate()-1);
+  const yStr=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+  if(lastActiveDate===yStr) streak++;
+  else if(lastActiveDate===null) streak=1;
+  else streak=1;
+  lastActiveDate=today;
+  save();
+}
+function toggle(id){
+  const wasDone=completed.has(id);
+  if(wasDone) completed.delete(id);
+  else{
+    completed.add(id);
+    updateStreak();
+    activityLog[todayStr()]=(activityLog[todayStr()]||0)+1;
+    save();
+    fireConfetti();
+    showToast('Problem solved! Streak: '+streak+' 🔥');
+  }
+  save();
+  refreshUI();
+}
+function refreshUI(){
+  updateSidebarPcts();
+  document.getElementById('streakCount').textContent=streak;
+  if(currentPage==='dashboard') renderDashboard();
+  else if(currentPage==='topic') renderTopic(currentTopic);
+  else if(currentPage==='company') renderCompany();
+  else if(currentPage==='patterns') renderPatterns();
+  else if(currentPage==='settings') renderSettings();
+}
+function doneCount(problems){return problems.filter(p=>completed.has(p.id)).length}
+function updateSidebarPcts(){
+  Object.entries(TOPICS).forEach(([key,t])=>{
+    const el=document.getElementById('pct-'+key);
+    if(el){
+      const pct=Math.round(doneCount(t.problems)/t.problems.length*100);
+      el.textContent=pct+'%';
+      el.classList.toggle('done100',pct===100);
+    }
+  });
+}
+
+// ====================================================================
+// NAVIGATION
+// ====================================================================
+function setActiveNav(matchFn){
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    const onclick=b.getAttribute('onclick')||'';
+    if(matchFn(onclick)) b.classList.add('active');
+  });
+}
+function showPage(page){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(page==='dashboard'){document.getElementById('page-dashboard').classList.add('active');renderDashboard();setActiveNav(o=>o.includes("showPage('dashboard')"));}
+  else if(page==='patterns'){document.getElementById('page-patterns').classList.add('active');renderPatterns();setActiveNav(o=>o.includes("showPage('patterns')"));}
+  else if(page==='company'){document.getElementById('page-company').classList.add('active');renderCompany();setActiveNav(o=>o.includes("showPage('company')"));}
+  else if(page==='aptitude'){document.getElementById('page-aptitude').classList.add('active');renderAptitude();setActiveNav(o=>o.includes("showPage('aptitude')"));}
+  else if(page==='resources'){document.getElementById('page-resources').classList.add('active');renderResources();setActiveNav(o=>o.includes("showPage('resources')"));}
+  else if(page==='settings'){document.getElementById('page-settings').classList.add('active');renderSettings();setActiveNav(o=>o.includes("showPage('settings')"));}
+}
+function showTopic(key){
+  currentPage='topic';currentTopic=key;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-topic').classList.add('active');
+  setActiveNav(o=>o===`showTopic('${key}')`);
+  filter='all';searchQuery='';
+  renderTopic(key);
+}
+function setFilter(f){filter=f;renderTopic(currentTopic)}
+function setCompany(k){currentCompany=k;renderCompany()}
+
+// ====================================================================
+// THEME + SETTINGS
+// ====================================================================
+function setTheme(t){
+  theme=t;
+  document.body.setAttribute('data-theme',t);
+  localStorage.setItem('placement_theme',t);
+  if(currentPage==='settings') renderSettings();
+  showToast('Theme: '+t);
+}
+function toggleSetting(key){
+  settings[key]=!settings[key];
+  saveSettings();
+  renderSettings();
+  showToast(key+' '+(settings[key]?'ON':'OFF'));
+  if(currentPage==='topic') renderTopic(currentTopic);
+  else if(currentPage==='company') renderCompany();
+}
+function resetAllData(){
+  if(!confirm('Reset ALL data? This will erase your solved problems, streak, and activity log. This cannot be undone.')) return;
+  localStorage.removeItem('placement_done');
+  localStorage.removeItem('placement_activity');
+  localStorage.removeItem('placement_lastDate');
+  localStorage.removeItem('placement_streak');
+  completed=new Set();
+  activityLog={};
+  lastActiveDate=null;
+  streak=0;
+  showToast('All data reset');
+  refreshUI();
+}
+function resetSettingsOnly(){
+  settings={showHints:true,showPseudocode:true,showPattern:true};
+  saveSettings();
+  renderSettings();
+  showToast('Settings reset to defaults');
+}
+
+// ====================================================================
+// PATTERN MODAL
+// ====================================================================
+function openPattern(name){
+  const p=PATTERNS[name];
+  if(!p){showToast('Pattern guide coming soon');return;}
+  const html=`
+    <button class="x" onclick="closeModal()">×</button>
+    <h2>${p.title}</h2>
+    <span class="pat-tag">${name}</span>
+    <h4>Concept</h4>
+    <p>${p.concept}</p>
+    <h4>When to use</h4>
+    <ul>${p.whenToUse.map(w=>`<li>${w}</li>`).join('')}</ul>
+    <h4>How to solve — step by step</h4>
+    <ul>${p.steps.map((s,i)=>`<li><b>Step ${i+1}.</b> ${s}</li>`).join('')}</ul>
+    <h4>Complexity</h4>
+    <div class="complexity"><div class="cx"><b>${p.complexity}</b></div></div>
+    <h4>Worked example</h4>
+    <p>${p.example}</p>
+  `;
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalBg').classList.add('show');
+}
+function closeModal(){document.getElementById('modalBg').classList.remove('show')}
+
+// ====================================================================
+// HELPERS FOR FLIPCARD BACK CONTENT
+// ====================================================================
+function escapeAttr(s){return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;')}
+function buildFlipBack(p){
+  let html=`<div class="bt">📘 <span style="cursor:pointer;text-decoration:underline" onclick="event.stopPropagation();openPattern('${escapeAttr(p.pattern)}')">${p.pattern}</span></div>`;
+  if(settings.showHints && p.hint){
+    html+=`<div class="hint"><b>💡 Hint:</b> ${p.hint}</div>`;
+  }
+  if(settings.showPseudocode && p.pseudocode){
+    html+=`<div class="code">${p.pseudocode}</div>`;
+  }
+  if(!settings.showHints && !settings.showPseudocode){
+    html+=`<div style="font-size:11px;color:var(--muted);padding:6px 0">Enable hints/pseudocode in Settings to see solution guidance. Pattern guide available above.</div>`;
+  }
+  html+=`<a class="b-link" href="${p.url}" target="_blank" onclick="event.stopPropagation()">Open on LeetCode ↗</a>`;
+  return html;
+}
+
+// ====================================================================
+// DASHBOARD RENDER
+// ====================================================================
+function renderDashboard(){
+  const allP=Object.values(TOPICS).flatMap(t=>t.problems);
+  const doneAll=doneCount(allP);
+  const total=allP.length;
+  const pct=Math.round(doneAll/total*100);
+  const easy=allP.filter(p=>p.diff==='easy');
+  const med=allP.filter(p=>p.diff==='medium');
+  const hard=allP.filter(p=>p.diff==='hard');
+  const solvedToday=activityLog[todayStr()]||0;
+  const todo=allP.filter(p=>!completed.has(p.id));
+  const mediumsLeft=todo.filter(p=>p.diff==='medium');
+  const pick=(mediumsLeft[0]||todo[0]||allP[0]);
+  const days=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const c=activityLog[ds]||0;
+    let lvl=0;
+    if(c>=4) lvl=4; else if(c===3) lvl=3; else if(c===2) lvl=2; else if(c===1) lvl=1;
+    days.push({ds,lvl,c});
+  }
+  let html=`
+  <div class="page-title"><span class="icon">📊</span><h2>Dashboard</h2></div>
+  <p class="page-sub">Track your placement preparation progress in real-time</p>
+  <div class="stat-grid">
+    <div class="stat-card" style="animation-delay:.05s"><span class="ico">✅</span><div class="label">Total Solved</div><div class="value" style="color:var(--accent)">${doneAll}</div><div class="sub">of ${total} problems</div></div>
+    <div class="stat-card" style="animation-delay:.1s"><span class="ico">🔥</span><div class="label">Day Streak</div><div class="value" style="color:var(--amber)">${streak}</div><div class="sub">${streak>=7?'On fire!':'Keep it going'}</div></div>
+    <div class="stat-card" style="animation-delay:.15s"><span class="ico">⭐</span><div class="label">Solved Today</div><div class="value" style="color:var(--green)">${solvedToday}</div><div class="sub">${solvedToday>=3?'Goal smashed!':'Aim for 3+'}</div></div>
+    <div class="stat-card" style="animation-delay:.2s"><span class="ico">📈</span><div class="label">Overall %</div><div class="value" style="background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">${pct}%</div><div class="sub">${pct>=50?'Halfway there!':'Keep pushing'}</div></div>
+  </div>
+  <div class="pick-card">
+    <div class="lbl">★ Today's Pick</div>
+    <h3>${pick.name}</h3>
+    <div class="meta">${pick.pattern} · ${pick.diff.toUpperCase()} · ${pick.url.includes('leetcode')?'LeetCode':'Practice'}</div>
+    <div class="btns">
+      <a class="pick-btn" href="${pick.url}" target="_blank">Solve on LeetCode ↗</a>
+      <button class="pick-btn outline" onclick="openPattern('${escapeAttr(pick.pattern)}')">View Pattern Guide</button>
+    </div>
+  </div>
+  <div class="progress-card">
+    <div class="ph"><span class="lbl">Overall Progress</span><span class="pct">${pct}%</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:0%" data-w="${pct}"></div></div>
+    <div class="legend">
+      <span><span class="d" style="background:var(--green)"></span> Easy: ${doneCount(easy)}/${easy.length}</span>
+      <span><span class="d" style="background:var(--amber)"></span> Medium: ${doneCount(med)}/${med.length}</span>
+      <span><span class="d" style="background:var(--red)"></span> Hard: ${doneCount(hard)}/${hard.length}</span>
+    </div>
+  </div>
+  <div class="heatmap-wrap">
+    <div class="ph"><span class="lbl">📅 Last 30 Days Activity</span><span class="sub">Total solved in window: ${days.reduce((a,d)=>a+d.c,0)}</span></div>
+    <div class="heatmap">${days.map(d=>`<div class="cell" data-l="${d.lvl}">${d.c>0?`<span class="tip">${d.c} solved · ${d.ds}</span>`:''}</div>`).join('')}</div>
+    <div class="heatmap-legend">Less<span class="lc" style="background:var(--card2)"></span><span class="lc" style="background:rgba(79,142,247,.25)"></span><span class="lc" style="background:rgba(79,142,247,.5)"></span><span class="lc" style="background:rgba(79,142,247,.75)"></span><span class="lc" style="background:var(--accent)"></span>More</div>
+  </div>
+  <div class="sec-title">🎯 Topic Progress (click to open)</div>
+  <div class="topic-grid">`;
+  Object.entries(TOPICS).forEach(([key,t],i)=>{
+    const done=doneCount(t.problems);
+    const pct2=Math.round(done/t.problems.length*100);
+    html+=`<div class="topic-card" style="--tc:${t.color};animation-delay:${.05*i}s" onclick="showTopic('${key}')">
+      <h3><span class="h-ico">${t.name.charAt(0)}</span>${t.name}</h3>
+      <div class="prog-bar"><div class="prog-fill" style="width:0%;background:${t.color}" data-w="${pct2}"></div></div>
+      <div class="meta"><span>${done}/${t.problems.length} solved</span><span class="pct-big" style="color:${t.color}">${pct2}%</span></div>
+    </div>`;
+  });
+  html+=`</div>`;
+  document.getElementById('page-dashboard').innerHTML=html;
+  requestAnimationFrame(()=>{document.querySelectorAll('[data-w]').forEach(el=>{el.style.width=el.getAttribute('data-w')+'%'});});
+}
+
+// ====================================================================
+// TOPIC RENDER
+// ====================================================================
+function renderTopic(key){
+  const t=TOPICS[key];
+  let probs=t.problems;
+  if(filter==='easy') probs=probs.filter(p=>p.diff==='easy');
+  else if(filter==='medium') probs=probs.filter(p=>p.diff==='medium');
+  else if(filter==='hard') probs=probs.filter(p=>p.diff==='hard');
+  else if(filter==='done') probs=probs.filter(p=>completed.has(p.id));
+  else if(filter==='todo') probs=probs.filter(p=>!completed.has(p.id));
+  if(searchQuery){
+    const q=searchQuery.toLowerCase();
+    probs=probs.filter(p=>p.name.toLowerCase().includes(q)||p.pattern.toLowerCase().includes(q));
+  }
+  const done=doneCount(t.problems);
+  const pct=Math.round(done/t.problems.length*100);
+  let html=`
+  <div class="page-header">
+    <div style="width:14px;height:14px;border-radius:50%;background:${t.color};box-shadow:0 0 12px ${t.color}"></div>
+    <h2>${t.name}</h2>
+    <span class="badge">${done}/${t.problems.length} done · ${pct}%</span>
+  </div>
+  <p class="page-sub-row">Click any problem card to flip and reveal hint + pseudocode. Tap a pattern chip for the full how-to-solve guide. Toggle hint/pseudocode visibility in ⚙️ Settings.</p>
+  <div class="topic-prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:0%;background:${t.color}" data-w="${pct}"></div></div></div>
+  <div class="search-row"><span class="si">🔍</span><input type="text" placeholder="Search problems or patterns in ${t.name}..." value="${searchQuery}" oninput="onSearch(this.value)"></div>
+  <div class="filter-row">${['all','easy','medium','hard','done','todo'].map(f=>`<button class="filter-btn${filter===f?' active':''}" onclick="setFilter('${f}')">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join('')}</div>
+  <div class="problem-list">`;
+  if(probs.length===0){
+    html+=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:13px">No problems match your filter. Try a different filter or search term.</div>`;
+  } else {
+    probs.forEach((p,i)=>{
+      const done2=completed.has(p.id);
+      html+=`<div class="flip-card${done2?' done':''}" style="animation-delay:${.03*i}s">
+        <div class="flip-inner" onclick="flipCard(this)">
+          <div class="flip-face flip-front">
+            <div class="p-check${done2?' checked':''}" onclick="event.stopPropagation();toggle('${p.id}')">
+              <svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="p-name">${p.name}</span>
+            <span class="p-pattern" onclick="event.stopPropagation();openPattern('${escapeAttr(p.pattern)}')">${p.pattern}</span>
+            <span class="diff ${p.diff}">${p.diff}</span>
+            <a class="lc-link" href="${p.url}" target="_blank" onclick="event.stopPropagation()">LC ↗</a>
+          </div>
+          <div class="flip-face flip-back">${buildFlipBack(p)}</div>
+        </div>
+      </div>`;
+    });
+  }
+  html+=`</div>`;
+  document.getElementById('page-topic').innerHTML=html;
+  requestAnimationFrame(()=>{document.querySelectorAll('[data-w]').forEach(el=>{el.style.width=el.getAttribute('data-w')+'%'});});
+}
+function onSearch(v){searchQuery=v;renderTopic(currentTopic)}
+function flipCard(el){el.parentElement.classList.toggle('flipped')}
+
+// ====================================================================
+// PATTERN LIBRARY PAGE
+// ====================================================================
+function renderPatterns(){
+  let html=`
+  <div class="page-title"><span class="icon">🧩</span><h2>Pattern Library</h2></div>
+  <p class="page-sub">Master the recurring DSA patterns. Each one explains the concept, when to use it, step-by-step solution recipe, complexity, and a worked example.</p>
+  <div class="topic-grid">`;
+  let i=0;
+  Object.entries(PATTERNS).forEach(([key,p])=>{
+    html+=`<div class="topic-card" style="--tc:var(--accent);animation-delay:${.03*i}s" onclick="openPattern('${escapeAttr(key)}')">
+      <h3><span class="h-ico">🧩</span>${p.title}</h3>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6;margin-top:6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">${p.concept}</div>
+      <div class="meta"><span>${p.whenToUse.length} use cases</span><span style="color:var(--accent);font-weight:700">View guide →</span></div>
+    </div>`;
+    i++;
+  });
+  html+=`</div>`;
+  document.getElementById('page-patterns').innerHTML=html;
+}
+
+// ====================================================================
+// COMPANY RENDER
+// ====================================================================
+function renderCompany(){
+  const c=COMPANIES[currentCompany];
+  let html=`
+  <div class="page-title"><span class="icon">🏢</span><h2>Company-Wise Prep</h2></div>
+  <p class="page-sub">Target specific companies with curated problem sets and round-by-round strategy. ${Object.keys(COMPANIES).length} companies available.</p>
+  <div class="company-tabs">${Object.entries(COMPANIES).map(([k,v])=>`<button class="ctab${currentCompany===k?' active':''}" onclick="setCompany('${k}')">${v.name}</button>`).join('')}</div>
+  <div class="company-info" style="--cc:${c.color}">
+    <h3 style="color:${c.color}">${c.name}</h3>
+    <p>${c.desc}</p>
+    <div style="font-size:11px;color:var(--muted);margin:8px 0">Round pattern: <span style="color:var(--text);font-weight:600">${c.round}</span></div>
+    <div class="tag-row">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  </div>
+  <div class="sec-title">📌 Frequently Asked Problems</div>
+  <div class="problem-list">`;
+  c.problems.forEach((p,i)=>{
+    const done=completed.has(p.id);
+    html+=`<div class="flip-card${done?' done':''}" style="animation-delay:${.03*i}s">
+      <div class="flip-inner" onclick="flipCard(this)">
+        <div class="flip-face flip-front">
+          <div class="p-check${done?' checked':''}" onclick="event.stopPropagation();toggle('${p.id}')">
+            <svg width="11" height="9" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="p-name">${p.name}</span>
+          ${p.pattern?`<span class="p-pattern" onclick="event.stopPropagation();openPattern('${escapeAttr(p.pattern)}')">${p.pattern}</span>`:''}
+          <span class="diff ${p.diff}">${p.diff}</span>
+          <a class="lc-link" href="${p.url}" target="_blank" onclick="event.stopPropagation()">LC ↗</a>
+        </div>
+        <div class="flip-face flip-back">${buildFlipBack(p)}</div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  document.getElementById('page-company').innerHTML=html;
+}
+
+// ====================================================================
+// APTITUDE RENDER
+// ====================================================================
+function renderAptitude(){
+  const sections=[
+    {key:'quant',label:'Quantitative Aptitude',color:'#4f8ef7',icon:'🔢'},
+    {key:'logical',label:'Logical Reasoning',color:'#3ecf8e',icon:'🧩'},
+    {key:'verbal',label:'Verbal Ability',color:'#a78bfa',icon:'📖'},
+    {key:'cs',label:'CS Fundamentals',color:'#f59e0b',icon:'💻'}
+  ];
+  let html=`
+  <div class="page-title"><span class="icon">🧮</span><h2>Aptitude Preparation</h2></div>
+  <p class="page-sub">Essential for TCS, Infosys, Wipro and all mass recruiters</p>
+  <div class="apt-grid">`;
+  sections.forEach((s,i)=>{
+    html+=`<div class="apt-card" style="--ac:${s.color};animation-delay:${.05*i}s"><h3 style="color:${s.color}"><span style="font-size:18px">${s.icon}</span> ${s.label}</h3>`;
+    APTITUDE[s.key].forEach(t=>{
+      html+=`<div class="apt-topic"><span class="name">${t.name}</span><span class="imp ${t.imp}">${t.imp==='high'?'High':t.imp==='med'?'Medium':'Low'}</span></div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--accent)">🔗 Recommended Aptitude Resources</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${[['IndiaBix','https://www.indiabix.com','Best for practice tests & previous year papers'],['PrepInsta','https://prepinsta.com','Company-specific aptitude papers'],['GeeksForGeeks Aptitude','https://www.geeksforgeeks.org/aptitude-questions-and-answers/','Topic-wise practice'],['TCS iON PrepHub','https://iontcs.com','Official TCS practice material']].map(([n,u,d])=>`<a href="${u}" target="_blank" style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;text-decoration:none;display:block;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:3px">${n} ↗</div><div style="font-size:11px;color:var(--muted)">${d}</div></a>`).join('')}
+    </div>
+  </div>
+  <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:16px">
+    <div style="font-size:14px;font-weight:700;color:var(--amber);margin-bottom:8px">⚡ Quick Strategy for Mass Recruiters</div>
+    <div style="font-size:12px;color:var(--muted);line-height:2">1. Spend 30 min/day on IndiaBix quant — focus on <strong style="color:var(--text)">Time & Work, TSD, Percentage</strong><br>2. Practice 10 logical reasoning questions daily — series and seating arrangement are most common<br>3. Read one English article daily to improve comprehension speed<br>4. Attempt 1 full mock test per week under timed conditions</div>
+  </div>`;
+  document.getElementById('page-aptitude').innerHTML=html;
+}
+
+// ====================================================================
+// RESOURCES RENDER
+// ====================================================================
+function renderResources(){
+  let html=`
+  <div class="page-title"><span class="icon">📚</span><h2>Study Resources</h2></div>
+  <p class="page-sub">Best free resources curated for placement preparation</p>
+  <div class="res-grid">`;
+  const sections=[
+    {title:"🎯 DSA Practice",items:[["NeetCode.io","https://neetcode.io","Best structured DSA roadmap with video solutions"],["Striver's A2Z Sheet","https://takeuforward.org/strivers-a2z-dsa-course","Most popular sheet for Indian placements"],["LeetCode Top 150","https://leetcode.com/studyplan/top-interview-150/","Top interview questions curated by LeetCode"],["Blind 75","https://leetcode.com/discuss/general-discussion/460599/blind-75-leetcode-questions","Classic 75 must-do problems"]]},
+    {title:"🎓 DSA Learning",items:[["GFG DSA Course","https://www.geeksforgeeks.org/dsa-tutorial-learn-data-structures-and-algorithms/","Free complete DSA tutorial"],["CS50 Harvard (Free)","https://cs50.harvard.edu/x/","World-class CS fundamentals"],["Abdul Bari (YouTube)","https://www.youtube.com/@abdul_bari","Best algorithm explanations in Hindi/English"],["Aditya Verma DP","https://www.youtube.com/playlist?list=PL_z_8CaSLPWekqhdCPmFohncHwz8TY2Go","Best Dynamic Programming playlist"]]},
+    {title:"🏢 Company Prep",items:[["GFG Company Prep","https://www.geeksforgeeks.org/company-preparation/","Company-wise interview experiences"],["Glassdoor Reviews","https://www.glassdoor.co.in/","Real interview experiences"],["AmbitionBox","https://www.ambitionbox.com/","Salary + interview insights for Indian companies"],["InterviewBit","https://www.interviewbit.com/","Structured company-specific interview prep"]]},
+    {title:"🚀 Flutter & Cloud",items:[["Flutter Docs","https://docs.flutter.dev/","Official Flutter documentation"],["AWS Free Tier","https://aws.amazon.com/free/","Practice with real AWS services free"],["Flutter Riverpod","https://riverpod.dev/","Advanced Flutter state management"],["AWS Skill Builder","https://skillbuilder.aws/","Free AWS training and practice exams"]]}
+  ];
+  sections.forEach((s,i)=>{
+    html+=`<div class="res-card" style="animation-delay:${.05*i}s"><h4>${s.title}</h4>`;
+    s.items.forEach(([n,u,d])=>{
+      html+=`<a href="${u}" target="_blank"><span style="color:var(--text);font-size:12px;font-weight:600">${n} ↗</span><span class="desc">${d}</span></a>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div>
+  <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);border-radius:14px;padding:16px;margin-top:18px">
+    <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:10px">📅 Recommended Daily Schedule</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:12px">
+      ${[['🌅 Morning (30 min)','1 LeetCode problem (Easy or Medium). Fresh brain = best for problem solving'],['🌆 Evening (20 min)',"Review yesterday's solution. Read top discussion. Understand better approach"],['🎯 Weekend (1 hour)','Attempt 1 mock aptitude test + 1 LeetCode contest to simulate real pressure']].map(([t,d])=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px"><div style="font-weight:700;margin-bottom:4px;color:var(--text)">${t}</div><div style="color:var(--muted);line-height:1.6">${d}</div></div>`).join('')}
+    </div>
+  </div>`;
+  document.getElementById('page-resources').innerHTML=html;
+}
+
+// ====================================================================
+// SETTINGS RENDER
+// ====================================================================
+function renderSettings(){
+  const themes=[
+    {id:'midnight',name:'Midnight Blue',bg:'#0f1117',card:'#1c2333',accent:'#4f8ef7'},
+    {id:'light',name:'Light',bg:'#f4f6fb',card:'#ffffff',accent:'#2563eb'},
+    {id:'aurora',name:'Aurora Purple',bg:'#0a0e27',card:'#181d4a',accent:'#7c83ff'},
+    {id:'cyberpunk',name:'Cyberpunk Neon',bg:'#0d0221',card:'#1f0740',accent:'#ff2e88'},
+    {id:'forest',name:'Forest Green',bg:'#0d1f17',card:'#1a3a2a',accent:'#34d399'}
+  ];
+  const totalProbs=Object.values(TOPICS).reduce((a,t)=>a+t.problems.length,0)+Object.values(COMPANIES).reduce((a,c)=>a+c.problems.length,0);
+  let html=`
+  <div class="page-title"><span class="icon">⚙️</span><h2>Settings</h2></div>
+  <p class="page-sub">Customize appearance, control what shows on flipcards, and manage your data.</p>
+
+  <div class="settings-section">
+    <h3>🎨 Appearance — Theme</h3>
+    <div class="desc">Pick a visual theme. Changes apply instantly and persist across sessions.</div>
+    <div class="theme-grid">
+      ${themes.map(t=>`<div class="theme-card${theme===t.id?' active':''}" onclick="setTheme('${t.id}')">
+        <div class="preview" style="background:${t.bg}">
+          <div class="pc" style="background:${t.card}"></div>
+          <div class="pd" style="background:${t.accent}"></div>
+          <div class="pb" style="background:linear-gradient(90deg,${t.accent},${t.card})"></div>
+        </div>
+        <div class="name">${t.name}</div>
+        <div class="check">✓</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>🛠️ Flipcard Content</h3>
+    <div class="desc">Control what appears on the back of each problem flipcard. Toggle off to hide spoilers while you practice.</div>
+    <div class="toggle-row">
+      <div class="info"><div class="t">💡 Show Hints</div><div class="d">Display a 1-2 line hint when you flip a problem card</div></div>
+      <div class="toggle${settings.showHints?' on':''}" onclick="toggleSetting('showHints')"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="info"><div class="t">⌨️ Show Pseudocode</div><div class="d">Display step-by-step pseudocode skeleton when you flip a card</div></div>
+      <div class="toggle${settings.showPseudocode?' on':''}" onclick="toggleSetting('showPseudocode')"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="info"><div class="t">🧩 Show Pattern Concept</div><div class="d">Always show the pattern name (clickable for full guide)</div></div>
+      <div class="toggle${settings.showPattern?' on':''}" onclick="toggleSetting('showPattern')"></div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <h3>📊 Your Data</h3>
+    <div class="desc">All data is stored locally in your browser. Nothing is sent to any server.</div>
+    <div class="data-stat">
+      <div class="ds"><div class="v">${completed.size}</div><div class="l">Solved</div></div>
+      <div class="ds"><div class="v">${streak}</div><div class="l">Day Streak</div></div>
+      <div class="ds"><div class="v">${Object.values(activityLog).reduce((a,b)=>a+b,0)}</div><div class="l">Total Activity</div></div>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted)">${totalProblems()} total problems tracked across ${Object.keys(TOPICS).length} topics and ${Object.keys(COMPANIES).length} companies.</div>
+  </div>
+
+  <div class="danger-zone">
+    <h3>⚠️ Danger Zone</h3>
+    <div class="desc">These actions cannot be undone. Be careful.</div>
+    <button class="danger-btn" onclick="resetSettingsOnly()">Reset Settings to Defaults</button>
+    <button class="danger-btn" onclick="resetAllData()">Reset ALL Data (Problems + Streak + Activity)</button>
+  </div>
+  `;
+  document.getElementById('page-settings').innerHTML=html;
+}
+function totalProblems(){
+  return Object.values(TOPICS).reduce((a,t)=>a+t.problems.length,0)+Object.values(COMPANIES).reduce((a,c)=>a+c.problems.length,0);
+}
+
+// ====================================================================
+// CONFETTI
+// ====================================================================
+const canvas=document.getElementById('confetti');
+const ctx=canvas.getContext('2d');
+let particles=[];
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resizeCanvas();
+window.addEventListener('resize',resizeCanvas);
+function fireConfetti(){
+  const colors=['#4f8ef7','#3ecf8e','#f59e0b','#ef4444','#a78bfa','#f472b6'];
+  for(let i=0;i<80;i++){
+    particles.push({
+      x:window.innerWidth/2+(Math.random()-.5)*200,
+      y:window.innerHeight/2,
+      vx:(Math.random()-.5)*8,
+      vy:Math.random()*-10-3,
+      g:0.3,
+      size:Math.random()*6+4,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,
+      vr:(Math.random()-.5)*15,
+      life:1
+    });
+  }
+  if(!animatingConfetti) animateConfetti();
+}
+let animatingConfetti=false;
+function animateConfetti(){
+  animatingConfetti=true;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles=particles.filter(p=>p.life>0);
+  particles.forEach(p=>{
+    p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.life-=0.012;
+    ctx.save();
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rot*Math.PI/180);
+    ctx.globalAlpha=Math.max(0,p.life);
+    ctx.fillStyle=p.color;
+    ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+    ctx.restore();
+  });
+  if(particles.length>0) requestAnimationFrame(animateConfetti);
+  else {animatingConfetti=false;ctx.clearRect(0,0,canvas.width,canvas.height);}
+}
+
+// ====================================================================
+// TOAST
+// ====================================================================
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
+
+// ====================================================================
+// INIT
+// ====================================================================
+setTheme(theme);
+updateSidebarPcts();
+document.getElementById('streakCount').textContent=streak;
+showPage('dashboard');
+</script>
+</body>
+</html>
