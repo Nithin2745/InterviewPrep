@@ -139,7 +139,16 @@ function checkCodeSyntax(codeStr: string, lang: Language): string | null {
 }
 
 export function PracticeWorkspace() {
-  const { toggleProblem, completed, currentProblemId, setCurrentProblemIdOnly, activeCode: code, setActiveCode: setCode } = useStore();
+  const {
+    toggleProblem,
+    completed,
+    currentProblemId,
+    setCurrentProblemIdOnly,
+    activeCode: code,
+    setActiveCode: setCode,
+    settings,
+    setLanguage
+  } = useStore();
   const problems = getAllProblems();
 
   const [selectedId, setSelectedId] = useState<string>(() => {
@@ -148,7 +157,7 @@ export function PracticeWorkspace() {
     }
     return problems[0]?.id || 'arr1';
   });
-  const [language, setLanguage] = useState<Language>('python');
+  const language = settings.language;
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
