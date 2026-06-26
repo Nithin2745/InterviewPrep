@@ -2,17 +2,17 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { problemId, problemName, language, code, isSubmit } = await req.json();
+    const { problemId, problemName, language, code, isSubmit, customInput } = await req.json();
 
     const apiKey = process.env.OPENROUTER_API_KEY;
     const model = process.env.OPENROUTER_MODEL || "openrouter/owl-alpha";
 
     if (!apiKey) {
       console.warn("OPENROUTER_API_KEY is not set. Falling back to local simple validation.");
-      return NextResponse.json(generateLocalFallback(problemId, problemName, language, code, isSubmit));
+      return NextResponse.json(generateLocalFallback(problemId, problemName, language, code, isSubmit, customInput));
     }
 
-    const prompt = `
+    let prompt = `
 You are a secure, sandboxed compiler and code execution environment for LeetCode-style questions.
 You need to compile and test the user's code for the problem: "${problemName}" in the language: "${language}".
 
@@ -20,12 +20,34 @@ User's Code:
 \`\`\`${language}
 ${code}
 \`\`\`
+`;
 
+    if (customInput) {
+      prompt += `
+Custom Test Case Input provided by user:
+"${customInput}"
+`;
+    }
+
+    prompt += `
 Task:
 1. Parse the user's code. If there are syntax errors, mismatched brackets, incorrect imports, or compiling issues for "${language}", identify them and return a detailed compiler error in "compileError".
 2. If the syntax/compilation is valid, simulate executing the user's logic against standard test cases for "${problemName}".
+`;
+
+    if (customInput) {
+      prompt += `
+3. In the "testCases" list, execute and include the result of the User's Custom Test Case Input as the first test case. The input field of the first item should be precisely "${customInput}".
+4. Run on 1-2 additional standard test cases.
+`;
+    } else {
+      prompt += `
 3. For "Run Code" (isSubmit = false), run on 2-3 standard test cases.
-4. For "Submit Solution" (isSubmit = true), run on a full suite of test cases (simulated ~100 cases). If the user's code has logic bugs, edge case failures, infinite loops, or incorrect return values, mark it accordingly (e.g. status: "Wrong Answer" or "Runtime Error"). If it is completely correct, mark status: "Accepted".
+`;
+    }
+
+    prompt += `
+5. For "Submit Solution" (isSubmit = true), run on a full suite of test cases (simulated ~100 cases). If the user's code has logic bugs, edge case failures, infinite loops, or incorrect return values, mark it accordingly (e.g. status: "Wrong Answer" or "Runtime Error"). If it is completely correct, mark status: "Accepted".
 
 Provide your response strictly in the following JSON format without any markdown backticks, explanations, or code fencing:
 {
@@ -35,7 +57,7 @@ Provide your response strictly in the following JSON format without any markdown
   "status": "Accepted | Wrong Answer | Runtime Error | Time Limit Exceeded", // only needed if isSubmit is true
   "runtime": "45 ms (or simulated speed)",
   "memory": "16.1 MB (or simulated memory)",
-  "summary": "e.g., 'All 3 test cases passed' or '105/105 test cases passed'",
+  "summary": "e.g., 'All test cases passed' or '105/105 test cases passed'",
   "testCases": [
     {
       "input": "e.g. nums = [2,7,11,15], target = 9",
@@ -95,7 +117,7 @@ Provide your response strictly in the following JSON format without any markdown
       summary: "Execution failed, fell back to template verification. Please write a correct solution.",
       testCases: [
         {
-          input: "Generic Input",
+          input: customInput || "Generic Input",
           expected: "Correct Output",
           output: "Please try again later. Connection to AI compiler timed out.",
           passed: false
@@ -106,10 +128,12 @@ Provide your response strictly in the following JSON format without any markdown
 }
 
 // Basic local fallback if api key is missing or offline
-function generateLocalFallback(problemId: string, problemName: string, language: string, code: string, isSubmit: boolean) {
+function generateLocalFallback(problemId: string, problemName: string, language: string, code: string, isSubmit: boolean, customInput?: string) {
   // Simple heuristic checks to see if they wrote anything non-trivial
   const lines = code.split("\n").map(l => l.trim()).filter(l => l.length > 0 && !l.startsWith("//") && !l.startsWith("#"));
   const hasSubstantialCode = lines.length > 3 && !code.includes("Write your code here") && !code.includes("pass");
+
+  const inputToShow = customInput || "nums = [2,7,11,15], target = 9";
 
   if (!hasSubstantialCode) {
     return {
@@ -122,7 +146,7 @@ function generateLocalFallback(problemId: string, problemName: string, language:
       summary: "0/2 test cases passed. No actual logic written in code.",
       testCases: [
         {
-          input: "Default Input",
+          input: inputToShow,
           expected: "Expected output matching solution",
           output: "None or starter template return value",
           passed: false
@@ -142,9 +166,9 @@ function generateLocalFallback(problemId: string, problemName: string, language:
     summary: isSubmit ? "105/105 test cases passed" : "All local test cases passed",
     testCases: [
       {
-        input: "nums = [2,7,11,15], target = 9",
-        expected: "[0,1]",
-        output: "[0,1]",
+        input: inputToShow,
+        expected: "Simulated Correct Output",
+        output: "Simulated Correct Output",
         passed: true
       }
     ]

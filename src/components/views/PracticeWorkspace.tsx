@@ -164,6 +164,8 @@ export function PracticeWorkspace() {
   const [searchQuery, setSearchQuery] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [syntaxStatus, setSyntaxStatus] = useState<string>('Ready');
+  const [customInput, setCustomInput] = useState('');
+  const [consoleTab, setConsoleTab] = useState<'output' | 'input'>('output');
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -179,8 +181,12 @@ export function PracticeWorkspace() {
       if (template) {
         setCode(template);
       }
+      // Reset console logs, close terminal drawer, and clear custom input when switching problems
+      setTerminalLogs([]);
+      setTerminalOpen(false);
+      setCustomInput('');
     }
-  }, [selectedId, language, problem]);
+  }, [selectedId, language]);
 
   // Click outside listener for dropdown
   useEffect(() => {
@@ -277,6 +283,7 @@ export function PracticeWorkspace() {
   const runCode = async () => {
     setIsRunning(true);
     setTerminalOpen(true);
+    setConsoleTab('output');
     setTerminalLogs(['Compiling code...']);
 
     try {
@@ -288,7 +295,8 @@ export function PracticeWorkspace() {
           problemName: problem.name,
           language,
           code,
-          isSubmit: false
+          isSubmit: false,
+          customInput
         })
       });
       if (!res.ok) throw new Error('Failed to run code');
@@ -426,14 +434,22 @@ Result: ${tc.passed ? 'PASS ✅' : 'FAIL ❌'}`;
                       }}
                       className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between ${
                         selectedId === p.id 
-                          ? 'bg-[var(--accent)] text-white' 
+                          ? 'bg-[var(--accent)] text-[var(--accent-text)]' 
                           : 'hover:bg-[var(--card2)] text-[var(--text)]'
                       }`}
                     >
                       <span className="font-semibold truncate pr-2">{p.name}</span>
-                      <span className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${
-                        p.diff === 'easy' ? 'bg-[var(--green)]/20 text-[var(--green)]' : p.diff === 'medium' ? 'bg-[var(--amber)]/20 text-[var(--amber)]' : 'bg-[var(--red)]/20 text-[var(--red)]'
-                      }`}>
+                      <span 
+                        className="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full" 
+                        style={{
+                          color: p.diff === 'easy' ? 'var(--green)' : p.diff === 'medium' ? 'var(--amber)' : 'var(--red)',
+                          background: p.diff === 'easy' 
+                            ? 'color-mix(in srgb, var(--green) 15%, transparent)' 
+                            : p.diff === 'medium' 
+                            ? 'color-mix(in srgb, var(--amber) 15%, transparent)' 
+                            : 'color-mix(in srgb, var(--red) 15%, transparent)'
+                        }}
+                      >
                         {p.diff}
                       </span>
                     </button>
@@ -445,6 +461,17 @@ Result: ${tc.passed ? 'PASS ✅' : 'FAIL ❌'}`;
               </div>
             )}
           </div>
+          {problem.url && (
+            <a
+              href={problem.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-2.5 rounded-xl text-xs font-bold border border-[var(--border)] text-[var(--muted)] hover:text-[var(--accent)] hover:border-[var(--accent)] transition-all flex items-center gap-1.5 bg-[var(--card2)] shrink-0"
+              title="Open this problem on LeetCode"
+            >
+              <span>🔗</span> <span className="hidden sm:inline">LeetCode ↗</span>
+            </a>
+          )}
         </div>
 
         {/* Language selector */}
@@ -491,8 +518,18 @@ Result: ${tc.passed ? 'PASS ✅' : 'FAIL ❌'}`;
           </div>
 
           <div className="border-t border-[var(--border)] pt-4">
-            <h4 className="text-xs font-bold text-[var(--accent)] uppercase tracking-wider mb-2">💡 Hint</h4>
-            <p className="text-xs leading-relaxed text-[var(--text)] bg-[color-mix(in_srgb,var(--amber)_6%,transparent)] border-l-2 border-[var(--amber)] p-3 rounded-r-lg">
+            <h4 className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: problem.diff === 'easy' ? 'var(--green)' : problem.diff === 'medium' ? 'var(--amber)' : 'var(--red)' }}>💡 Hint</h4>
+            <p 
+              className="text-xs leading-relaxed text-[var(--text)] border-l-2 p-3 rounded-r-lg"
+              style={{
+                borderColor: problem.diff === 'easy' ? 'var(--green)' : problem.diff === 'medium' ? 'var(--amber)' : 'var(--red)',
+                background: problem.diff === 'easy' 
+                  ? 'color-mix(in srgb, var(--green) 6%, transparent)' 
+                  : problem.diff === 'medium' 
+                  ? 'color-mix(in srgb, var(--amber) 6%, transparent)' 
+                  : 'color-mix(in srgb, var(--red) 6%, transparent)'
+              }}
+            >
               {problem.hint}
             </p>
           </div>
@@ -555,23 +592,61 @@ Result: ${tc.passed ? 'PASS ✅' : 'FAIL ❌'}`;
 
           {/* Nested Console Drawer inside the Editor container */}
           {terminalOpen && (
-            <div className="bg-[var(--code-bg)] border-t border-[var(--border)] p-4 flex flex-col h-56 transition-all shrink-0 z-10 animate-in slide-in-from-bottom duration-200">
-              <div className="flex items-center justify-between text-xs font-bold border-b border-[var(--border)] pb-2 mb-2 text-[var(--muted)]">
-                <span className="flex items-center gap-1.5"><Terminal size={14} /> Execution Console Output</span>
+            <div className="bg-[var(--code-bg)] border-t border-[var(--border)] flex flex-col h-56 transition-all shrink-0 z-10 animate-in slide-in-from-bottom duration-200">
+              {/* Tab Header */}
+              <div className="flex items-center justify-between text-xs font-bold border-b border-[var(--border)] px-4 py-2 shrink-0 text-[var(--muted)] bg-[var(--card2)]">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setConsoleTab('output')}
+                    className={`px-3 py-1 rounded-md transition-all ${
+                      consoleTab === 'output'
+                        ? 'bg-[var(--card)] text-[var(--accent)] border border-[var(--border)]'
+                        : 'hover:text-[var(--text)]'
+                    }`}
+                  >
+                    Console Output
+                  </button>
+                  <button
+                    onClick={() => setConsoleTab('input')}
+                    className={`px-3 py-1 rounded-md transition-all ${
+                      consoleTab === 'input'
+                        ? 'bg-[var(--card)] text-[var(--accent)] border border-[var(--border)]'
+                        : 'hover:text-[var(--text)]'
+                    }`}
+                  >
+                    Custom Test Case
+                  </button>
+                </div>
                 <button 
                   onClick={() => setTerminalOpen(false)}
-                  className="hover:text-[var(--text)] flex items-center gap-1 text-[var(--muted)] transition-colors"
+                  className="hover:text-[var(--text)] flex items-center gap-1 transition-colors"
                 >
                   <X size={13} /> Close
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-[var(--text)] whitespace-pre-wrap">
-                {terminalLogs.map((log, i) => (
-                  <div key={i} className="mb-1">{log}</div>
-                ))}
-                {isRunning && (
-                  <div className="flex items-center gap-2 text-[var(--muted)] mt-1 animate-pulse font-mono">
-                    <span>⚡ System compiling and executing code...</span>
+
+              {/* Console Body */}
+              <div className="flex-1 overflow-y-auto p-4 font-mono text-[11px] leading-relaxed text-[var(--text)]">
+                {consoleTab === 'output' ? (
+                  <>
+                    {terminalLogs.map((log, i) => (
+                      <div key={i} className="mb-1">{log}</div>
+                    ))}
+                    {isRunning && (
+                      <div className="flex items-center gap-2 text-[var(--muted)] mt-1 animate-pulse font-mono">
+                        <span>⚡ System compiling and executing code...</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex flex-col h-full gap-2">
+                    <label className="text-[10px] uppercase font-bold text-[var(--muted)]">Input parameters (one per line, e.g. nums = [2,7,11,15], target = 9)</label>
+                    <textarea
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
+                      placeholder="Write your custom test case input here..."
+                      className="flex-1 bg-[var(--card2)] border border-[var(--border)] rounded-lg p-2.5 text-xs text-[var(--text)] focus:outline-none focus:border-[var(--accent)] resize-none font-mono"
+                    />
                   </div>
                 )}
               </div>

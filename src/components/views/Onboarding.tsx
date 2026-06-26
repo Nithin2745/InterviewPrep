@@ -15,6 +15,19 @@ function shuffle<T>(array: T[]): T[] {
   return arr;
 }
 
+function getBalancedLocalQuestions() {
+  const easy = QUIZ_QUESTIONS.filter((q) => q.difficulty === 'easy');
+  const medium = QUIZ_QUESTIONS.filter((q) => q.difficulty === 'medium');
+  const hard = QUIZ_QUESTIONS.filter((q) => q.difficulty === 'hard');
+
+  const selected = [
+    ...shuffle(easy).slice(0, 5),
+    ...shuffle(medium).slice(0, 6),
+    ...shuffle(hard).slice(0, 4)
+  ];
+  return shuffle(selected);
+}
+
 export function Onboarding() {
   const { settings, completeOnboarding } = useStore();
   const [phase, setPhase] = useState<'welcome' | 'quiz' | 'result'>('welcome');
@@ -27,7 +40,7 @@ export function Onboarding() {
 
   useEffect(() => {
     applyTheme(settings.theme);
-    setQuestions(shuffle(QUIZ_QUESTIONS).slice(0, 5));
+    setQuestions(getBalancedLocalQuestions());
   }, [settings.theme]);
 
   const startQuiz = async () => {
@@ -39,11 +52,11 @@ export function Onboarding() {
       if (Array.isArray(data.questions) && data.questions.length > 0) {
         setQuestions(data.questions);
       } else {
-        setQuestions(shuffle(QUIZ_QUESTIONS).slice(0, 5));
+        setQuestions(getBalancedLocalQuestions());
       }
     } catch (err) {
       console.warn("Failed to generate AI quiz, falling back to local questions:", err);
-      setQuestions(shuffle(QUIZ_QUESTIONS).slice(0, 5));
+      setQuestions(getBalancedLocalQuestions());
     } finally {
       setQuizLoading(false);
       setCurrentQ(0);
@@ -94,18 +107,18 @@ export function Onboarding() {
               🎯 Let's assess your level first
             </h2>
             <p className="text-[var(--muted)] text-sm mb-4 leading-relaxed">
-              Take a quick <strong className="text-[var(--text)]">{(questions.length || 5)}-question quiz</strong> covering DSA fundamentals,
+              Take a quick <strong className="text-[var(--text)]">{(questions.length || 15)}-question quiz</strong> covering DSA fundamentals,
               complexity analysis, and common patterns. Based on your score, we'll generate a
               personalized 8-12 week roadmap with recommended problems.
             </p>
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="text-center p-3 rounded-lg bg-[var(--card2)]">
                 <div className="text-2xl mb-1">⏱️</div>
-                <div className="text-xs text-[var(--muted)]">~2 min</div>
+                <div className="text-xs text-[var(--muted)]">~5 min</div>
               </div>
               <div className="text-center p-3 rounded-lg bg-[var(--card2)]">
                 <div className="text-2xl mb-1">📝</div>
-                <div className="text-xs text-[var(--muted)]">{(questions.length || 5)} questions</div>
+                <div className="text-xs text-[var(--muted)]">{(questions.length || 15)} questions</div>
               </div>
               <div className="text-center p-3 rounded-lg bg-[var(--card2)]">
                 <div className="text-2xl mb-1">🗺️</div>

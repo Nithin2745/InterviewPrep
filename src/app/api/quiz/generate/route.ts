@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { QUIZ_QUESTIONS } from "@/lib/data/quiz";
 
@@ -8,14 +10,14 @@ export async function GET() {
   // If API key is not configured, fall back immediately to static questions
   if (!apiKey) {
     console.warn("OPENROUTER_API_KEY is not set, falling back to static quiz.");
-    return NextResponse.json({ questions: getRandomStaticQuestions(5) });
+    return NextResponse.json({ questions: getRandomStaticQuestions(15) });
   }
 
   try {
     const prompt = `
-Generate exactly 5 multiple choice questions for a Data Structures and Algorithms (DSA) onboarding quiz.
+Generate exactly 15 unique multiple choice questions for a Data Structures and Algorithms (DSA) onboarding quiz.
 The topics should be selected from: Arrays, Strings, Hashing, Linked Lists, Stacks & Queues, Binary Search, Trees, Graphs, Backtracking, Dynamic Programming, Greedy, Heaps.
-Include a balanced mix of easy, medium, and hard difficulties.
+The difficulty distribution must be: exactly 5 easy, 6 medium, and 4 hard questions.
 Provide your response strictly in the following JSON format without any markdown backticks, explanations, or code fencing:
 {
   "questions": [
@@ -87,11 +89,22 @@ Provide your response strictly in the following JSON format without any markdown
   } catch (error: any) {
     console.error("Failed to generate dynamic quiz via OpenRouter:", error);
     // Graceful fallback to static questions
-    return NextResponse.json({ questions: getRandomStaticQuestions(5) });
+    return NextResponse.json({ questions: getRandomStaticQuestions(15) });
   }
 }
 
 function getRandomStaticQuestions(count: number) {
-  const shuffled = [...QUIZ_QUESTIONS].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count);
+  const easy = QUIZ_QUESTIONS.filter((q) => q.difficulty === 'easy').sort(() => 0.5 - Math.random());
+  const medium = QUIZ_QUESTIONS.filter((q) => q.difficulty === 'medium').sort(() => 0.5 - Math.random());
+  const hard = QUIZ_QUESTIONS.filter((q) => q.difficulty === 'hard').sort(() => 0.5 - Math.random());
+
+  // We want 5 easy, 6 medium, 4 hard (total 15)
+  const selected = [
+    ...easy.slice(0, 5),
+    ...medium.slice(0, 6),
+    ...hard.slice(0, 4)
+  ];
+
+  // Shuffle selected questions
+  return selected.sort(() => 0.5 - Math.random());
 }

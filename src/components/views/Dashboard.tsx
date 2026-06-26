@@ -34,9 +34,18 @@ export function Dashboard() {
   const hard = allP.filter((p) => p.diff === 'hard');
   const solvedToday = activityLog[todayStr()] || 0;
 
-  const todo = allP.filter((p) => !completed.includes(p.id));
-  const mediumsLeft = todo.filter((p) => p.diff === 'medium');
-  const pick = mediumsLeft[0] || todo[0] || allP[0];
+  const getDailyPick = (allProblems: typeof allP) => {
+    if (!allProblems.length) return null;
+    const today = todayStr();
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) {
+      hash = today.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % allProblems.length;
+    return allProblems[index];
+  };
+
+  const pick = getDailyPick(allP);
 
   const days: { ds: string; lvl: number; c: number }[] = [];
   for (let i = 29; i >= 0; i--) {
