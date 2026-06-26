@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  let customInput: string | undefined;
   try {
-    const { problemId, problemName, language, code, isSubmit, customInput } = await req.json();
+    const body = await req.json();
+    ({ customInput } = body);
+    const { problemId, problemName, language, code, isSubmit } = body;
 
     const apiKey = process.env.OPENROUTER_API_KEY;
     const model = process.env.OPENROUTER_MODEL || "openrouter/owl-alpha";
