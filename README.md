@@ -25,7 +25,7 @@ PlacementPrep Tracker is a premium, feature-rich web application designed to hel
 *   **Framework:** Next.js (App Router), React, TypeScript
 *   **Styling:** Tailwind CSS v4, Vanilla CSS
 *   **State Management:** Zustand (with local storage persistence middleware)
-*   **Database & ORM:** Prisma ORM with SQLite (`dev.db`)
+*   **Database & ORM:** Prisma ORM with Supabase (PostgreSQL)
 *   **Icons:** Lucide React
 *   **AI Integration:** OpenRouter API (calls models like Owl Alpha for code compilation simulation and tutoring)
 
@@ -54,13 +54,18 @@ PlacementPrep Tracker is a premium, feature-rich web application designed to hel
 3.  **Set up environment variables:**
     Create a `.env` file in the root directory and configure the following parameters:
     ```env
-    DATABASE_URL="file:./prisma/dev.db"
+    # Supabase connection pooled URL (port 6543) - used by Next.js/Vercel
+    DATABASE_URL="postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[YOUR-REGION].pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+
+    # Supabase direct connection URL (port 5432) - used for Prisma migrations/pushes
+    DIRECT_URL="postgresql://postgres.[YOUR-PROJECT-REF]:[YOUR-PASSWORD]@aws-0-[YOUR-REGION].pooler.supabase.com:5432/postgres"
+
     OPENROUTER_API_KEY="your_openrouter_api_key_here"
     OPENROUTER_MODEL="openrouter/owl-alpha"
     ```
 
 4.  **Initialize the Database:**
-    Generate the Prisma client and push the schema to SQLite:
+    Generate the Prisma client and push the schema to Supabase:
     ```bash
     npx prisma db push
     ```
@@ -76,4 +81,4 @@ PlacementPrep Tracker is a premium, feature-rich web application designed to hel
 ## 🛠️ Git & Security Safeguards
 
 *   **`.env`**: Configured to hold all database connections and AI API keys; git-ignored by default.
-*   **Local Databases**: Local SQLite DB instances (`prisma/dev.db`, `*.db-journal`, etc.) are ignored via `.gitignore` to prevent committing staging/personal datasets to GitHub.
+*   **Local Databases**: Previously used SQLite DB instances (`prisma/dev.db`, etc.) are ignored. The application is configured to run on cloud-hosted Supabase (PostgreSQL).

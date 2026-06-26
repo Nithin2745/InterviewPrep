@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "Track your LeetCode prep with hints, pseudocode in 4 languages, personalized roadmaps, and 11 company-specific problem sets.",
   keywords: ["LeetCode", "placement", "DSA", "interview prep", "FAANG"],
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/logo.svg",
   },
 };
 
