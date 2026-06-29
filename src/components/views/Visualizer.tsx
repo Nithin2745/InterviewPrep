@@ -19,6 +19,9 @@ export function Visualizer() {
   const [selectedClassName, setSelectedClassName] = useState('');
   const [selectedMethodName, setSelectedMethodName] = useState('');
   const [customArgs, setCustomArgs] = useState<Record<string, string>>({});
+  const [executorMode, setExecutorMode] = useState<'local' | 'ai'>('local');
+  const [isCompiling, setIsCompiling] = useState(false);
+  const [showAiFallbackOffer, setShowAiFallbackOffer] = useState(false);
   
   // Simulation control state
   const [steps, setSteps] = useState<ExecutionStep[]>([]);
@@ -153,33 +156,77 @@ export function Visualizer() {
   }, [customArgs, discoveredEntrypoints, selectedClassName, selectedMethodName]);
 
   // Compile and run the Java code
-  const handleVisualize = () => {
+  const handleVisualize = async () => {
     setIsPlaying(false);
     setError(null);
-    try {
-      const tokens = tokenize(code);
-      const parser = new Parser(tokens);
-      const ast = parser.parse();
-      const interpreter = new Interpreter(ast);
-      const args = prepareArguments();
-      
-      const executionSteps = interpreter.run(
-        selectedClassName,
-        selectedMethodName,
-        args
-      );
+    setShowAiFallbackOffer(false);
 
-      if (executionSteps.length === 0) {
-        throw new Error('No execution steps were captured.');
+    if (executorMode === 'local') {
+      try {
+        const tokens = tokenize(code);
+        const parser = new Parser(tokens);
+        const ast = parser.parse();
+        const interpreter = new Interpreter(ast);
+        const args = prepareArguments();
+        
+        const executionSteps = interpreter.run(
+          selectedClassName,
+          selectedMethodName,
+          args
+        );
+
+        if (executionSteps.length === 0) {
+          throw new Error('No execution steps were captured.');
+        }
+
+        setSteps(executionSteps);
+        setCurrentStepIdx(0);
+        toast.success(`Code compiled and traced! Generated ${executionSteps.length} execution steps.`);
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message || 'An error occurred during execution.');
+        setShowAiFallbackOffer(true);
+        toast.error('Local compilation failed. Try compiling using the Advanced AI Executor.');
       }
+    } else {
+      setIsCompiling(true);
+      try {
+        const args = prepareArguments();
+        const res = await fetch('/api/visualize-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code,
+            className: selectedClassName,
+            methodName: selectedMethodName,
+            args
+          })
+        });
 
-      setSteps(executionSteps);
-      setCurrentStepIdx(0);
-      toast.success(`Code compiled and traced! Generated ${executionSteps.length} execution steps.`);
-    } catch (e: any) {
-      console.error(e);
-      setError(e.message || 'An error occurred during execution.');
-      toast.error('Compilation or execution failed.');
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Failed to simulate execution using AI.');
+        }
+
+        const data = await res.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        if (!data.steps || data.steps.length === 0) {
+          throw new Error('AI execution completed but returned no trace steps.');
+        }
+
+        setSteps(data.steps);
+        setCurrentStepIdx(0);
+        toast.success(`AI compiler compiled and executed your code! Generated ${data.steps.length} steps.`);
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message || 'An error occurred during AI execution.');
+        toast.error('AI compilation failed.');
+      } finally {
+        setIsCompiling(false);
+      }
     }
   };
 
@@ -461,6 +508,25 @@ export function Visualizer() {
               <span>Execution Parameters</span>
             </h3>
             
+            {/* Executor engine selector */}
+            <div className="flex items-center justify-between bg-[var(--card2)] border border-[var(--border)] p-1 rounded-xl mb-4 text-[10px]">
+              <span className="font-bold text-[var(--muted)] uppercase tracking-wider pl-2">Execution Engine:</span>
+              <div className="flex bg-[var(--card)] p-0.5 rounded-lg border border-[var(--border)]">
+                <button
+                  onClick={() => { setExecutorMode('local'); setError(null); setShowAiFallbackOffer(false); }}
+                  className={`px-3 py-1 rounded-md transition-all font-semibold cursor-pointer ${executorMode === 'local' ? 'bg-[var(--accent)] text-[var(--accent-text)]' : 'text-[var(--muted)] hover:text-[var(--text)]'}`}
+                >
+                  Local Interpreter
+                </button>
+                <button
+                  onClick={() => { setExecutorMode('ai'); setError(null); setShowAiFallbackOffer(false); }}
+                  className={`px-3 py-1 rounded-md transition-all font-semibold cursor-pointer ${executorMode === 'ai' ? 'bg-[var(--accent)] text-[var(--accent-text)]' : 'text-[var(--muted)] hover:text-[var(--text)]'}`}
+                >
+                  AI VM (Advanced)
+                </button>
+              </div>
+            </div>
+
             {/* Entrypoint Class and Method selector */}
             <div className="flex flex-wrap items-center gap-4 mb-4 pb-4 border-b border-[var(--border)]">
               <div className="flex-1 min-w-[120px] space-y-1">
@@ -540,17 +606,47 @@ export function Visualizer() {
               )}
             </div>
             
+            {showAiFallbackOffer && (
+              <div className="mt-4 p-3 bg-[var(--accent)]/10 border border-[var(--accent)]/30 rounded-xl flex flex-col gap-2 animate-in fade-in duration-200">
+                <p className="text-[11px] text-[var(--text)] leading-relaxed">
+                  💡 This code uses advanced Java libraries or syntax unsupported by the local client-side interpreter. 
+                  Would you like to run it using the <b>Advanced AI VM</b> (which supports all standard Java classes)?
+                </p>
+                <button
+                  onClick={() => {
+                    setExecutorMode('ai');
+                    setShowAiFallbackOffer(false);
+                    setTimeout(() => {
+                      document.getElementById('compile-visualize-btn')?.click();
+                    }, 100);
+                  }}
+                  className="w-full py-1.5 rounded-lg bg-[var(--accent)] text-[var(--accent-text)] text-xs font-bold hover:opacity-90 active:scale-[0.98] transition-all text-center cursor-pointer"
+                >
+                  Run using AI Virtual Machine 🪄
+                </button>
+              </div>
+            )}
+
             <div className="flex justify-between items-center mt-5 pt-3 border-t border-[var(--border)]">
               <p className="text-[10px] text-[var(--muted)] italic">
                 {selectedExample.description}
               </p>
               
               <button
+                id="compile-visualize-btn"
                 onClick={handleVisualize}
-                className="py-2 px-4 rounded-xl font-extrabold text-xs transition-all hover:opacity-90 active:scale-[0.98] shrink-0 ml-3 cursor-pointer"
+                disabled={isCompiling}
+                className="py-2 px-4 rounded-xl font-extrabold text-xs transition-all hover:opacity-90 active:scale-[0.98] shrink-0 ml-3 cursor-pointer flex items-center gap-1.5"
                 style={{ background: 'var(--grad)', color: 'var(--accent-text)', boxShadow: 'var(--glow)' }}
               >
-                Compile & Visualize 🪄
+                {isCompiling ? (
+                  <>
+                    <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span>Compiling...</span>
+                  </>
+                ) : (
+                  <span>Compile & Visualize 🪄</span>
+                )}
               </button>
             </div>
           </div>
