@@ -30,6 +30,7 @@ export type ASTNode =
   | { type: 'ArrayAccess'; array: ASTNode; index: ASTNode }
   | { type: 'MemberAccess'; object: ASTNode; property: string }
   | { type: 'MethodCall'; callee: string; arguments: ASTNode[] }
+  | { type: 'MemberMethodCall'; object: ASTNode; property: string; arguments: ASTNode[] }
   | { type: 'NewObject'; className: string; arguments: ASTNode[] }
   | { type: 'Empty' };
 
@@ -246,6 +247,34 @@ export class Parser {
     return { type: 'Program', body };
   }
 
+  private parseTypeName(): string {
+    let typeName = '';
+    if (this.match('KEYWORD')) {
+      typeName = this.previous().value;
+    } else {
+      typeName = this.consume('IDENTIFIER', 'Expect type name').value;
+    }
+
+    // Skip generics e.g. List<Integer> or Map<String, List<Integer>>
+    if (this.check('OPERATOR', '<') || this.check('PUNCTUATION', '<')) {
+      this.advance(); // consume '<'
+      let angleCount = 1;
+      while (angleCount > 0 && !this.isAtEnd()) {
+        const tok = this.advance();
+        if (tok.value === '<') angleCount++;
+        else if (tok.value === '>') angleCount--;
+      }
+    }
+
+    // Check array brackets e.g. int[]
+    if (this.match('PUNCTUATION', '[')) {
+      this.consume('PUNCTUATION', "Expect ']'", ']');
+      typeName += '[]';
+    }
+
+    return typeName;
+  }
+
   private parseDeclaration(): ASTNode {
     try {
       if (this.match('KEYWORD', 'class')) {
@@ -277,17 +306,9 @@ export class Parser {
     this.match('KEYWORD', 'private');
     this.match('KEYWORD', 'static');
 
-    let returnType = '';
+    let returnType = this.parseTypeName();
     let name = '';
     let isConstructor = false;
-
-    if (this.match('KEYWORD')) {
-      returnType = this.previous().value;
-    } else if (this.match('IDENTIFIER')) {
-      returnType = this.previous().value;
-    } else {
-      throw new Error(`Expect return type or field type at line ${this.peek().line}`);
-    }
 
     // Check if next is '(', meaning this is a constructor e.g., Node(int val)
     if (this.check('PUNCTUATION', '(')) {
@@ -295,11 +316,6 @@ export class Parser {
       name = returnType;
       returnType = 'void'; // Constructor returns void conceptually
     } else {
-      // Check array types e.g. int[]
-      if (this.match('PUNCTUATION', '[')) {
-        this.consume('PUNCTUATION', "Expect ']' for array type definition", ']');
-        returnType += '[]';
-      }
       name = this.consume('IDENTIFIER', 'Expect member name').value;
     }
 
@@ -313,15 +329,7 @@ export class Parser {
       const params: ParamNode[] = [];
       if (!this.check('PUNCTUATION', ')')) {
         do {
-          let paramType = '';
-          if (this.match('KEYWORD')) paramType = this.previous().value;
-          else paramType = this.consume('IDENTIFIER', 'Expect parameter type').value;
-
-          if (this.match('PUNCTUATION', '[')) {
-            this.consume('PUNCTUATION', "Expect ']' for array parameter type", ']');
-            paramType += '[]';
-          }
-
+          const paramType = this.parseTypeName();
           const paramName = this.consume('IDENTIFIER', 'Expect parameter name').value;
           params.push({ type: paramType, name: paramName });
         } while (this.match('PUNCTUATION', ','));
@@ -473,17 +481,8 @@ export class Parser {
   }
 
   private parseVarDeclStatement(): ASTNode {
-    let typeName = '';
-    if (this.match('KEYWORD')) typeName = this.previous().value;
-    else typeName = this.consume('IDENTIFIER', 'Expect type name').value;
-
-    let isArray = false;
-    if (this.match('PUNCTUATION', '[')) {
-      this.consume('PUNCTUATION', "Expect ']'", ']');
-      isArray = true;
-      typeName += '[]';
-    }
-
+    const typeName = this.parseTypeName();
+    const isArray = typeName.endsWith('[]');
     const name = this.consume('IDENTIFIER', 'Expect variable name').value;
 
     if (isArray) {
@@ -500,9 +499,7 @@ export class Parser {
         this.consume('PUNCTUATION', "Expect ';'", ';');
         return { type: 'ArrayDeclInit', varType: typeName, name, elements };
       } else if (this.match('KEYWORD', 'new')) {
-        let baseType = '';
-        if (this.match('KEYWORD')) baseType = this.previous().value;
-        else baseType = this.consume('IDENTIFIER', 'Expect base type').value;
+        const baseType = this.parseTypeName();
 
         this.consume('PUNCTUATION', "Expect '[' for new array allocation size", '[');
         const sizeExpr = this.parseExpression();
@@ -637,6 +634,13 @@ export class Parser {
         
         if (expr.type === 'Identifier') {
           expr = { type: 'MethodCall', callee: expr.name, arguments: args };
+        } else if (expr.type === 'MemberAccess') {
+          expr = {
+            type: 'MemberMethodCall',
+            object: expr.object,
+            property: expr.property,
+            arguments: args
+          };
         } else {
           throw new Error(`Invalid call target at line ${this.peek().line}`);
         }
@@ -682,7 +686,7 @@ export class Parser {
       return expr;
     }
     if (this.match('KEYWORD', 'new')) {
-      const className = this.consume('IDENTIFIER', 'Expect class name after new keyword').value;
+      const className = this.parseTypeName();
       this.consume('PUNCTUATION', "Expect '(' for constructor arguments", '(');
       const args: ASTNode[] = [];
       if (!this.check('PUNCTUATION', ')')) {
@@ -1314,6 +1318,130 @@ export class Interpreter {
           }
           throw signal;
         }
+      }
+
+      case 'MemberMethodCall': {
+        const objVal = this.evaluate(node.object);
+        const args = node.arguments.map(arg => this.evaluate(arg));
+        const prop = node.property;
+
+        if (objVal === null) {
+          throw new Error(`NullPointerException: Attempted to call method '${prop}' on null object`);
+        }
+
+        // 1. If object is a String primitive
+        if (typeof objVal === 'string') {
+          if (prop === 'charAt') {
+            const idx = args[0];
+            if (typeof idx !== 'number' || idx < 0 || idx >= objVal.length) {
+              throw new Error(`StringIndexOutOfBoundsException: String index out of range: ${idx}`);
+            }
+            return objVal.charAt(idx);
+          }
+          if (prop === 'length') {
+            return objVal.length;
+          }
+          if (prop === 'equals') {
+            return objVal === args[0];
+          }
+          if (prop === 'substring') {
+            const start = args[0] || 0;
+            const end = args[1] !== undefined ? args[1] : objVal.length;
+            return objVal.substring(start, end);
+          }
+          if (prop === 'indexOf') {
+            return objVal.indexOf(args[0]);
+          }
+          throw new Error(`MethodNotFoundError: String class has no method named '${prop}'`);
+        }
+
+        // 2. If object is a Heap reference (e.g. ArrayList, HashMap, Node)
+        if (typeof objVal === 'string' && objVal.startsWith('ref:')) {
+          const heapObj = this.heap[objVal];
+          if (!heapObj) {
+            throw new Error(`NullPointerException: Reference error for heap object ID ${objVal}`);
+          }
+
+          if (heapObj.type === 'object') {
+            if (heapObj.className === 'ArrayList' || heapObj.className === 'List') {
+              if (!heapObj.fields['_list']) {
+                heapObj.fields['_list'] = [];
+              }
+              const list: any[] = heapObj.fields['_list'];
+
+              if (prop === 'add') {
+                list.push(args[0]);
+                return true;
+              }
+              if (prop === 'get') {
+                const idx = args[0];
+                if (idx < 0 || idx >= list.length) {
+                  throw new Error(`IndexOutOfBoundsException: Index ${idx} out of bounds for list of size ${list.length}`);
+                }
+                return list[idx];
+              }
+              if (prop === 'size') {
+                return list.length;
+              }
+              if (prop === 'isEmpty') {
+                return list.length === 0;
+              }
+              if (prop === 'remove') {
+                if (typeof args[0] === 'number') {
+                  const idx = args[0];
+                  if (idx < 0 || idx >= list.length) {
+                    throw new Error(`IndexOutOfBoundsException: Index ${idx} out of bounds`);
+                  }
+                  return list.splice(idx, 1)[0];
+                } else {
+                  const idx = list.indexOf(args[0]);
+                  if (idx !== -1) {
+                    list.splice(idx, 1);
+                    return true;
+                  }
+                  return false;
+                }
+              }
+              if (prop === 'clear') {
+                heapObj.fields['_list'] = [];
+                return null;
+              }
+            }
+
+            if (heapObj.className === 'HashMap' || heapObj.className === 'Map') {
+              if (!heapObj.fields['_map']) {
+                heapObj.fields['_map'] = {};
+              }
+              const map: Record<string, any> = heapObj.fields['_map'];
+
+              if (prop === 'put') {
+                const prev = map[args[0]] !== undefined ? map[args[0]] : null;
+                map[args[0]] = args[1];
+                return prev;
+              }
+              if (prop === 'get') {
+                return map[args[0]] !== undefined ? map[args[0]] : null;
+              }
+              if (prop === 'containsKey') {
+                return args[0] in map;
+              }
+              if (prop === 'size') {
+                return Object.keys(map).length;
+              }
+              if (prop === 'remove') {
+                const prev = map[args[0]] !== undefined ? map[args[0]] : null;
+                delete map[args[0]];
+                return prev;
+              }
+              if (prop === 'clear') {
+                heapObj.fields['_map'] = {};
+                return null;
+              }
+            }
+          }
+        }
+
+        throw new Error(`MethodNotFoundError: Object has no method named '${prop}'`);
       }
 
       default:

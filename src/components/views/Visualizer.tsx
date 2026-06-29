@@ -122,13 +122,36 @@ export function Visualizer() {
       const valStr = customArgs[param.name] || '';
       const type = param.type.trim();
 
+      // General utility to strip surrounding quotes if present (e.g. "axc" -> axc)
+      let cleanedVal = valStr.trim();
+      if (
+        (cleanedVal.startsWith('"') && cleanedVal.endsWith('"')) ||
+        (cleanedVal.startsWith("'") && cleanedVal.endsWith("'"))
+      ) {
+        cleanedVal = cleanedVal.substring(1, cleanedVal.length - 1);
+      }
+
       if (type.endsWith('[]')) {
-        const parsedArr = valStr.split(',').map((x) => {
-          const trimmed = x.trim();
-          if (trimmed === '') return null;
-          return isNaN(Number(trimmed)) ? trimmed : Number(trimmed);
-        }).filter(x => x !== null);
-        args.push(parsedArr);
+        if (type.startsWith('String') || type.startsWith('char')) {
+          const parsedArr = valStr.split(',').map((x) => {
+            let item = x.trim();
+            if (
+              (item.startsWith('"') && item.endsWith('"')) ||
+              (item.startsWith("'") && item.endsWith("'"))
+            ) {
+              item = item.substring(1, item.length - 1);
+            }
+            return item;
+          });
+          args.push(parsedArr);
+        } else {
+          const parsedArr = valStr.split(',').map((x) => {
+            const trimmed = x.trim();
+            if (trimmed === '') return null;
+            return isNaN(Number(trimmed)) ? trimmed : Number(trimmed);
+          }).filter(x => x !== null);
+          args.push(parsedArr);
+        }
       } else if (type === 'Node' || type === 'ListNode') {
         const parsedArr = valStr.split(',').map((x) => {
           const trimmed = x.trim();
@@ -145,11 +168,13 @@ export function Visualizer() {
         }
         args.push(head);
       } else if (type === 'int' || type === 'double') {
-        args.push(valStr === '' ? 0 : Number(valStr));
+        args.push(cleanedVal === '' ? 0 : Number(cleanedVal));
       } else if (type === 'boolean') {
-        args.push(valStr.trim().toLowerCase() === 'true');
+        args.push(cleanedVal.toLowerCase() === 'true');
+      } else if (type === 'char') {
+        args.push(cleanedVal.charAt(0) || '');
       } else {
-        args.push(valStr);
+        args.push(cleanedVal);
       }
     });
     return args;
