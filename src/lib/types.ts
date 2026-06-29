@@ -110,7 +110,8 @@ export type ViewId =
   | 'onboarding'
   | 'practice'
   | 'roadmap'
-  | 'all-problems';
+  | 'all-problems'
+  | 'visualizer';
 
 export interface Settings {
   theme: ThemeId;

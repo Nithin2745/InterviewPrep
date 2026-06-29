@@ -14,6 +14,7 @@ import { SettingsView } from './views/Settings';
 import { RoadmapView } from './views/Roadmap';
 import { PracticeWorkspace } from './views/PracticeWorkspace';
 import { AllProblems } from './views/AllProblems';
+import { Visualizer } from './views/Visualizer';
 import { PrepBot } from './PrepBot';
 import { useState } from 'react';
 import { Menu, X, Lock, Mail, Loader2 } from 'lucide-react';
@@ -145,6 +146,7 @@ export function AppShell() {
             {navItem('Dashboard', '📊', () => setView('dashboard'), currentView === 'dashboard')}
             {navItem('My Roadmap', '🗺️', () => setView('roadmap'), currentView === 'roadmap')}
             {navItem('Practice Workspace', '🧰', () => setView('practice'), currentView === 'practice')}
+            {navItem('Code Visualizer', '🔮', () => setView('visualizer'), currentView === 'visualizer')}
             {navItem('All Problems', '📚', () => setView('all-problems'), currentView === 'all-problems')}
             {navItem('Pattern Library', '🧩', () => setView('patterns'), currentView === 'patterns')}
 
@@ -230,6 +232,7 @@ export function AppShell() {
           {currentView === 'settings' && <SettingsView />}
           {currentView === 'roadmap' && <RoadmapView />}
           {currentView === 'practice' && <PracticeWorkspace />}
+          {currentView === 'visualizer' && <Visualizer />}
           {currentView === 'all-problems' && <AllProblems />}
         </div>
       </main>
